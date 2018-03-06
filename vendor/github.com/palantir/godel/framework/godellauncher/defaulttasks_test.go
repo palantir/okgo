@@ -18,6 +18,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/palantir/godel/framework/artifactresolver"
 )
 
 func testDefaultPluginsConfig() PluginsConfig {
@@ -25,19 +27,19 @@ func testDefaultPluginsConfig() PluginsConfig {
 		DefaultResolvers: []string{defaultResolver},
 		Plugins: []SinglePluginConfig{
 			{
-				LocatorWithResolverConfig: LocatorWithResolverConfig{
-					Locator: LocatorConfig{
+				LocatorWithResolverConfig: artifactresolver.LocatorWithResolverConfig{
+					Locator: artifactresolver.LocatorConfig{
 						ID: "com.palantir.test:test-plugin:1.2.3",
 					},
 				},
-				Assets: []LocatorWithResolverConfig{
+				Assets: []artifactresolver.LocatorWithResolverConfig{
 					{
-						Locator: LocatorConfig{
+						Locator: artifactresolver.LocatorConfig{
 							ID: "com.palantir.test:test-asset-1:2.3.4",
 						},
 					},
 					{
-						Locator: LocatorConfig{
+						Locator: artifactresolver.LocatorConfig{
 							ID: "com.palantir.test:test-asset-2:3.4.5",
 						},
 					},
@@ -68,19 +70,19 @@ func TestDefaultTasksPluginsConfig(t *testing.T) {
 				},
 				Plugins: []SinglePluginConfig{
 					{
-						LocatorWithResolverConfig: LocatorWithResolverConfig{
-							Locator: LocatorConfig{
+						LocatorWithResolverConfig: artifactresolver.LocatorWithResolverConfig{
+							Locator: artifactresolver.LocatorConfig{
 								ID: "com.palantir.test:test-plugin:1.2.3",
 							},
 						},
-						Assets: []LocatorWithResolverConfig{
+						Assets: []artifactresolver.LocatorWithResolverConfig{
 							{
-								Locator: LocatorConfig{
+								Locator: artifactresolver.LocatorConfig{
 									ID: "com.palantir.test:test-asset-1:2.3.4",
 								},
 							},
 							{
-								Locator: LocatorConfig{
+								Locator: artifactresolver.LocatorConfig{
 									ID: "com.palantir.test:test-asset-2:3.4.5",
 								},
 							},
@@ -92,9 +94,11 @@ func TestDefaultTasksPluginsConfig(t *testing.T) {
 		{
 			"specifying custom resolver overrides resolver",
 			DefaultTasksConfig{
-				"com.palantir.test:test-plugin": {
-					LocatorWithResolverConfig: LocatorWithResolverConfig{
-						Resolver: "custom-resolver",
+				Tasks: map[string]SingleDefaultTaskConfig{
+					"com.palantir.test:test-plugin": {
+						LocatorWithResolverConfig: artifactresolver.LocatorWithResolverConfig{
+							Resolver: "custom-resolver",
+						},
 					},
 				},
 			},
@@ -104,20 +108,20 @@ func TestDefaultTasksPluginsConfig(t *testing.T) {
 				},
 				Plugins: []SinglePluginConfig{
 					{
-						LocatorWithResolverConfig: LocatorWithResolverConfig{
-							Locator: LocatorConfig{
+						LocatorWithResolverConfig: artifactresolver.LocatorWithResolverConfig{
+							Locator: artifactresolver.LocatorConfig{
 								ID: "com.palantir.test:test-plugin:1.2.3",
 							},
 							Resolver: "custom-resolver",
 						},
-						Assets: []LocatorWithResolverConfig{
+						Assets: []artifactresolver.LocatorWithResolverConfig{
 							{
-								Locator: LocatorConfig{
+								Locator: artifactresolver.LocatorConfig{
 									ID: "com.palantir.test:test-asset-1:2.3.4",
 								},
 							},
 							{
-								Locator: LocatorConfig{
+								Locator: artifactresolver.LocatorConfig{
 									ID: "com.palantir.test:test-asset-2:3.4.5",
 								},
 							},
@@ -129,10 +133,12 @@ func TestDefaultTasksPluginsConfig(t *testing.T) {
 		{
 			"specifying custom locator overrides locator",
 			DefaultTasksConfig{
-				"com.palantir.test:test-plugin": {
-					LocatorWithResolverConfig: LocatorWithResolverConfig{
-						Locator: LocatorConfig{
-							ID: "com.palantir.godel:override:1.2.3",
+				Tasks: map[string]SingleDefaultTaskConfig{
+					"com.palantir.test:test-plugin": {
+						LocatorWithResolverConfig: artifactresolver.LocatorWithResolverConfig{
+							Locator: artifactresolver.LocatorConfig{
+								ID: "com.palantir.godel:override:1.2.3",
+							},
 						},
 					},
 				},
@@ -143,19 +149,63 @@ func TestDefaultTasksPluginsConfig(t *testing.T) {
 				},
 				Plugins: []SinglePluginConfig{
 					{
-						LocatorWithResolverConfig: LocatorWithResolverConfig{
-							Locator: LocatorConfig{
+						LocatorWithResolverConfig: artifactresolver.LocatorWithResolverConfig{
+							Locator: artifactresolver.LocatorConfig{
 								ID: "com.palantir.godel:override:1.2.3",
 							},
 						},
-						Assets: []LocatorWithResolverConfig{
+						Assets: []artifactresolver.LocatorWithResolverConfig{
 							{
-								Locator: LocatorConfig{
+								Locator: artifactresolver.LocatorConfig{
 									ID: "com.palantir.test:test-asset-1:2.3.4",
 								},
 							},
 							{
-								Locator: LocatorConfig{
+								Locator: artifactresolver.LocatorConfig{
+									ID: "com.palantir.test:test-asset-2:3.4.5",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			"specifying default resolver appends default resolver",
+			DefaultTasksConfig{
+				DefaultResolvers: []string{
+					"default/repo/{{GroupPath}}/{{Product}}/{{Version}}/{{Product}}-{{OS}}-{{Arch}}-{{Version}}.tgz",
+				},
+				Tasks: map[string]SingleDefaultTaskConfig{
+					"com.palantir.test:test-plugin": {
+						LocatorWithResolverConfig: artifactresolver.LocatorWithResolverConfig{
+							Locator: artifactresolver.LocatorConfig{
+								ID: "com.palantir.godel:override:1.2.3",
+							},
+						},
+					},
+				},
+			},
+			PluginsConfig{
+				DefaultResolvers: []string{
+					defaultResolver,
+					"default/repo/{{GroupPath}}/{{Product}}/{{Version}}/{{Product}}-{{OS}}-{{Arch}}-{{Version}}.tgz",
+				},
+				Plugins: []SinglePluginConfig{
+					{
+						LocatorWithResolverConfig: artifactresolver.LocatorWithResolverConfig{
+							Locator: artifactresolver.LocatorConfig{
+								ID: "com.palantir.godel:override:1.2.3",
+							},
+						},
+						Assets: []artifactresolver.LocatorWithResolverConfig{
+							{
+								Locator: artifactresolver.LocatorConfig{
+									ID: "com.palantir.test:test-asset-1:2.3.4",
+								},
+							},
+							{
+								Locator: artifactresolver.LocatorConfig{
 									ID: "com.palantir.test:test-asset-2:3.4.5",
 								},
 							},
@@ -167,11 +217,13 @@ func TestDefaultTasksPluginsConfig(t *testing.T) {
 		{
 			"specifying custom asset adds only that asset",
 			DefaultTasksConfig{
-				"com.palantir.test:test-plugin": {
-					Assets: []LocatorWithResolverConfig{
-						{
-							Locator: LocatorConfig{
-								ID: "com.palantir.godel:custom-asset:1.2.3",
+				Tasks: map[string]SingleDefaultTaskConfig{
+					"com.palantir.test:test-plugin": {
+						Assets: []artifactresolver.LocatorWithResolverConfig{
+							{
+								Locator: artifactresolver.LocatorConfig{
+									ID: "com.palantir.godel:custom-asset:1.2.3",
+								},
 							},
 						},
 					},
@@ -183,24 +235,24 @@ func TestDefaultTasksPluginsConfig(t *testing.T) {
 				},
 				Plugins: []SinglePluginConfig{
 					{
-						LocatorWithResolverConfig: LocatorWithResolverConfig{
-							Locator: LocatorConfig{
+						LocatorWithResolverConfig: artifactresolver.LocatorWithResolverConfig{
+							Locator: artifactresolver.LocatorConfig{
 								ID: "com.palantir.test:test-plugin:1.2.3",
 							},
 						},
-						Assets: []LocatorWithResolverConfig{
+						Assets: []artifactresolver.LocatorWithResolverConfig{
 							{
-								Locator: LocatorConfig{
+								Locator: artifactresolver.LocatorConfig{
 									ID: "com.palantir.test:test-asset-1:2.3.4",
 								},
 							},
 							{
-								Locator: LocatorConfig{
+								Locator: artifactresolver.LocatorConfig{
 									ID: "com.palantir.test:test-asset-2:3.4.5",
 								},
 							},
 							{
-								Locator: LocatorConfig{
+								Locator: artifactresolver.LocatorConfig{
 									ID: "com.palantir.godel:custom-asset:1.2.3",
 								},
 							},
@@ -212,12 +264,14 @@ func TestDefaultTasksPluginsConfig(t *testing.T) {
 		{
 			"setting exclude all and specifying custom asset adds asset to default",
 			DefaultTasksConfig{
-				"com.palantir.test:test-plugin": {
-					ExcludeAllDefaultAssets: true,
-					Assets: []LocatorWithResolverConfig{
-						{
-							Locator: LocatorConfig{
-								ID: "com.palantir.godel:custom-asset:1.2.3",
+				Tasks: map[string]SingleDefaultTaskConfig{
+					"com.palantir.test:test-plugin": {
+						ExcludeAllDefaultAssets: true,
+						Assets: []artifactresolver.LocatorWithResolverConfig{
+							{
+								Locator: artifactresolver.LocatorConfig{
+									ID: "com.palantir.godel:custom-asset:1.2.3",
+								},
 							},
 						},
 					},
@@ -229,14 +283,14 @@ func TestDefaultTasksPluginsConfig(t *testing.T) {
 				},
 				Plugins: []SinglePluginConfig{
 					{
-						LocatorWithResolverConfig: LocatorWithResolverConfig{
-							Locator: LocatorConfig{
+						LocatorWithResolverConfig: artifactresolver.LocatorWithResolverConfig{
+							Locator: artifactresolver.LocatorConfig{
 								ID: "com.palantir.test:test-plugin:1.2.3",
 							},
 						},
-						Assets: []LocatorWithResolverConfig{
+						Assets: []artifactresolver.LocatorWithResolverConfig{
 							{
-								Locator: LocatorConfig{
+								Locator: artifactresolver.LocatorConfig{
 									ID: "com.palantir.godel:custom-asset:1.2.3",
 								},
 							},
@@ -248,14 +302,16 @@ func TestDefaultTasksPluginsConfig(t *testing.T) {
 		{
 			"specifying default asset with exclude and custom asset adds asset",
 			DefaultTasksConfig{
-				"com.palantir.test:test-plugin": {
-					DefaultAssetsToExclude: []string{
-						"com.palantir.test:test-asset-2",
-					},
-					Assets: []LocatorWithResolverConfig{
-						{
-							Locator: LocatorConfig{
-								ID: "com.palantir.godel:custom-asset:1.2.3",
+				Tasks: map[string]SingleDefaultTaskConfig{
+					"com.palantir.test:test-plugin": {
+						DefaultAssetsToExclude: []string{
+							"com.palantir.test:test-asset-2",
+						},
+						Assets: []artifactresolver.LocatorWithResolverConfig{
+							{
+								Locator: artifactresolver.LocatorConfig{
+									ID: "com.palantir.godel:custom-asset:1.2.3",
+								},
 							},
 						},
 					},
@@ -267,19 +323,19 @@ func TestDefaultTasksPluginsConfig(t *testing.T) {
 				},
 				Plugins: []SinglePluginConfig{
 					{
-						LocatorWithResolverConfig: LocatorWithResolverConfig{
-							Locator: LocatorConfig{
+						LocatorWithResolverConfig: artifactresolver.LocatorWithResolverConfig{
+							Locator: artifactresolver.LocatorConfig{
 								ID: "com.palantir.test:test-plugin:1.2.3",
 							},
 						},
-						Assets: []LocatorWithResolverConfig{
+						Assets: []artifactresolver.LocatorWithResolverConfig{
 							{
-								Locator: LocatorConfig{
+								Locator: artifactresolver.LocatorConfig{
 									ID: "com.palantir.test:test-asset-1:2.3.4",
 								},
 							},
 							{
-								Locator: LocatorConfig{
+								Locator: artifactresolver.LocatorConfig{
 									ID: "com.palantir.godel:custom-asset:1.2.3",
 								},
 							},

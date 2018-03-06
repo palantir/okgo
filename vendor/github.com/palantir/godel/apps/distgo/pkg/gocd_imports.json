@@ -17,6 +17,15 @@
             ]
         },
         {
+            "path": "github.com/palantir/godel/pkg/osarch",
+            "numGoFiles": 2,
+            "numImportedGoFiles": 0,
+            "importedFrom": [
+                "github.com/palantir/godel/apps/distgo/pkg/binspec",
+                "github.com/palantir/godel/apps/distgo/pkg/binspec_test"
+            ]
+        },
+        {
             "path": "github.com/palantir/godel/vendor/github.com/palantir/pkg/matcher",
             "numGoFiles": 3,
             "numImportedGoFiles": 0,
@@ -44,19 +53,6 @@
                 "github.com/palantir/godel/apps/distgo/pkg/imports",
                 "github.com/palantir/godel/apps/distgo/pkg/script",
                 "github.com/palantir/godel/apps/distgo/pkg/slsspec"
-            ]
-        },
-        {
-            "path": "github.com/palantir/godel/vendor/github.com/stretchr/testify/require",
-            "numGoFiles": 5,
-            "numImportedGoFiles": 15,
-            "importedFrom": [
-                "github.com/palantir/godel/apps/distgo/pkg/binspec_test",
-                "github.com/palantir/godel/apps/distgo/pkg/git/gittest",
-                "github.com/palantir/godel/apps/distgo/pkg/git_test",
-                "github.com/palantir/godel/apps/distgo/pkg/imports_test",
-                "github.com/palantir/godel/apps/distgo/pkg/osarch_test",
-                "github.com/palantir/godel/apps/distgo/pkg/slsspec_test"
             ]
         },
         {
@@ -90,6 +86,14 @@
             ]
         },
         {
+            "path": "github.com/palantir/godel/vendor/github.com/palantir/pkg/gittest",
+            "numGoFiles": 1,
+            "numImportedGoFiles": 0,
+            "importedFrom": [
+                "github.com/palantir/godel/apps/distgo/pkg/git_test"
+            ]
+        },
+        {
             "path": "github.com/palantir/godel/vendor/github.com/stretchr/testify/assert",
             "numGoFiles": 6,
             "numImportedGoFiles": 9,
@@ -97,7 +101,17 @@
                 "github.com/palantir/godel/apps/distgo/pkg/binspec_test",
                 "github.com/palantir/godel/apps/distgo/pkg/git_test",
                 "github.com/palantir/godel/apps/distgo/pkg/imports_test",
-                "github.com/palantir/godel/apps/distgo/pkg/osarch_test",
+                "github.com/palantir/godel/apps/distgo/pkg/slsspec_test"
+            ]
+        },
+        {
+            "path": "github.com/palantir/godel/vendor/github.com/stretchr/testify/require",
+            "numGoFiles": 5,
+            "numImportedGoFiles": 15,
+            "importedFrom": [
+                "github.com/palantir/godel/apps/distgo/pkg/binspec_test",
+                "github.com/palantir/godel/apps/distgo/pkg/git_test",
+                "github.com/palantir/godel/apps/distgo/pkg/imports_test",
                 "github.com/palantir/godel/apps/distgo/pkg/slsspec_test"
             ]
         }

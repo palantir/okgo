@@ -30,8 +30,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/palantir/godel/apps/distgo/pkg/osarch"
+	"github.com/palantir/godel/framework/artifactresolver"
+	"github.com/palantir/godel/framework/godellauncher"
+	"github.com/palantir/godel/framework/internal/pathsinternal"
 	"github.com/palantir/godel/framework/pluginapi"
+	"github.com/palantir/godel/pkg/osarch"
 )
 
 var pluginScriptTmpl = fmt.Sprintf(`#!/usr/bin/env bash
@@ -51,7 +54,7 @@ func TestInfoFromResolved(t *testing.T) {
 	err = ioutil.WriteFile(pluginFile, []byte(fmt.Sprintf(pluginScriptTmpl, pluginName)), 0755)
 	require.NoError(t, err)
 
-	gotInfo, err := pluginapi.InfoFromPlugin(path.Join(tmpDir, pluginFileName(locator{
+	gotInfo, err := pluginapi.InfoFromPlugin(path.Join(tmpDir, pathsinternal.PluginFileName(artifactresolver.Locator{
 		Group:   "com.palantir",
 		Product: pluginName,
 		Version: "1.0.0",
@@ -81,7 +84,7 @@ exit 1
 `), 0755)
 	require.NoError(t, err)
 
-	_, err = pluginapi.InfoFromPlugin(path.Join(tmpDir, pluginFileName(locator{
+	_, err = pluginapi.InfoFromPlugin(path.Join(tmpDir, pathsinternal.PluginFileName(artifactresolver.Locator{
 		Group:   "com.palantir",
 		Product: pluginName,
 		Version: "1.0.0",
@@ -110,12 +113,12 @@ func TestResolvePlugins(t *testing.T) {
 	require.NoError(t, err)
 
 	outBuf := &bytes.Buffer{}
-	plugins, errs := resolvePlugins(pluginsDir, assetsDir, downloadsDir, osArch, projectParams{
-		Plugins: []singlePluginParam{
+	plugins, errs := resolvePlugins(pluginsDir, assetsDir, downloadsDir, osArch, godellauncher.PluginsParam{
+		Plugins: []godellauncher.SinglePluginParam{
 			{
-				locatorWithResolverParam: locatorWithResolverParam{
-					LocatorWithChecksums: locatorWithChecksumsParam{
-						locator: loc,
+				LocatorWithResolverParam: artifactresolver.LocatorWithResolverParam{
+					LocatorWithChecksums: artifactresolver.LocatorParam{
+						Locator: loc,
 					},
 					Resolver: resolver,
 				},
@@ -124,7 +127,7 @@ func TestResolvePlugins(t *testing.T) {
 	}, outBuf)
 	assert.NoError(t, errs)
 
-	wantPlugins := map[locator]pluginInfoWithAssets{
+	wantPlugins := map[artifactresolver.Locator]pluginInfoWithAssets{
 		loc: {
 			PluginInfo: pluginapi.MustNewInfo(
 				"com.palantir",
@@ -138,7 +141,7 @@ func TestResolvePlugins(t *testing.T) {
 	assert.Equal(t, wantPlugins, plugins)
 }
 
-func createTestPlugin(t *testing.T, tmpDir string) (locator, resolver, osarch.OSArch) {
+func createTestPlugin(t *testing.T, tmpDir string) (artifactresolver.Locator, artifactresolver.Resolver, osarch.OSArch) {
 	pluginName := newPluginName()
 	testProductDir := path.Join(tmpDir, "repo", "com", "palantir", pluginName, "1.0.0")
 	err := os.MkdirAll(testProductDir, 0755)
@@ -155,13 +158,13 @@ func createTestPlugin(t *testing.T, tmpDir string) (locator, resolver, osarch.OS
 	tmpDirAbs, err := filepath.Abs(tmpDir)
 	require.NoError(t, err)
 
-	testResolver, err := newTemplateResolver(tmpDirAbs + "/repo/{{GroupPath}}/{{Product}}/{{Version}}/{{Product}}-{{OS}}-{{Arch}}-{{Version}}.tgz")
+	testResolver, err := artifactresolver.NewTemplateResolver(tmpDirAbs + "/repo/{{GroupPath}}/{{Product}}/{{Version}}/{{Product}}-{{OS}}-{{Arch}}-{{Version}}.tgz")
 	require.NoError(t, err)
 
 	darwinOSArch, err := osarch.New("darwin-amd64")
 	require.NoError(t, err)
 
-	return locator{
+	return artifactresolver.Locator{
 		Group:   "com.palantir",
 		Product: pluginName,
 		Version: "1.0.0",
@@ -171,13 +174,13 @@ func createTestPlugin(t *testing.T, tmpDir string) (locator, resolver, osarch.OS
 func TestVerifyPluginCompatibility(t *testing.T) {
 	for i, tc := range []struct {
 		name  string
-		input map[locator]pluginInfoWithAssets
+		input map[artifactresolver.Locator]pluginInfoWithAssets
 		want  string
 	}{
 		{
 			"no plugin conflicts",
-			map[locator]pluginInfoWithAssets{
-				locator{
+			map[artifactresolver.Locator]pluginInfoWithAssets{
+				{
 					Group:   "com.palantir",
 					Product: "foo",
 					Version: "1.0.0",
@@ -189,8 +192,8 @@ func TestVerifyPluginCompatibility(t *testing.T) {
 		},
 		{
 			"verify catches plugins with same group and product but different version",
-			map[locator]pluginInfoWithAssets{
-				locator{
+			map[artifactresolver.Locator]pluginInfoWithAssets{
+				{
 					Group:   "com.palantir",
 					Product: "foo",
 					Version: "1.0.0",
@@ -199,7 +202,7 @@ func TestVerifyPluginCompatibility(t *testing.T) {
 						pluginapi.MustNewTaskInfo("foo", "", nil, nil, nil),
 					),
 				},
-				locator{
+				{
 					Group:   "com.palantir",
 					Product: "foo",
 					Version: "2.0.0",
@@ -217,8 +220,8 @@ func TestVerifyPluginCompatibility(t *testing.T) {
 		},
 		{
 			"verify catches plugins with conflicting commands",
-			map[locator]pluginInfoWithAssets{
-				locator{
+			map[artifactresolver.Locator]pluginInfoWithAssets{
+				{
 					Group:   "com.palantir",
 					Product: "foo",
 					Version: "1.0.0",
@@ -227,7 +230,7 @@ func TestVerifyPluginCompatibility(t *testing.T) {
 						pluginapi.MustNewTaskInfo("foo", "", nil, nil, nil),
 					),
 				},
-				locator{
+				{
 					Group:   "com.palantir",
 					Product: "bar",
 					Version: "2.0.0",

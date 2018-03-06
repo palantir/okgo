@@ -21,23 +21,26 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v2"
 
+	"github.com/palantir/godel/framework/artifactresolver"
 	"github.com/palantir/godel/framework/godellauncher"
 )
 
 func TestMarshalConfig(t *testing.T) {
 	cfg := godellauncher.GodelConfig{
-		Plugins: godellauncher.PluginsConfig{
-			Plugins: []godellauncher.SinglePluginConfig{
-				{
-					LocatorWithResolverConfig: godellauncher.LocatorWithResolverConfig{
-						Locator: godellauncher.LocatorConfig{
-							ID: "com.palantir:plugin:1.0.0",
+		TasksConfig: godellauncher.TasksConfig{
+			Plugins: godellauncher.PluginsConfig{
+				Plugins: []godellauncher.SinglePluginConfig{
+					{
+						LocatorWithResolverConfig: artifactresolver.LocatorWithResolverConfig{
+							Locator: artifactresolver.LocatorConfig{
+								ID: "com.palantir:plugin:1.0.0",
+							},
 						},
-					},
-					Assets: []godellauncher.LocatorWithResolverConfig{
-						{
-							Locator: godellauncher.LocatorConfig{
-								ID: "com.palantir:asset:1.0.0",
+						Assets: []artifactresolver.LocatorWithResolverConfig{
+							{
+								Locator: artifactresolver.LocatorConfig{
+									ID: "com.palantir:asset:1.0.0",
+								},
 							},
 						},
 					},
@@ -48,7 +51,12 @@ func TestMarshalConfig(t *testing.T) {
 	got, err := yaml.Marshal(cfg)
 	require.NoError(t, err)
 
-	want := `default-tasks: {}
+	want := `tasks-config-providers:
+  resolvers: []
+  providers: []
+default-tasks:
+  resolvers: []
+  tasks: {}
 plugins:
   resolvers: []
   plugins:
@@ -85,21 +93,23 @@ plugins:
 	require.NoError(t, err)
 
 	want := godellauncher.GodelConfig{
-		Plugins: godellauncher.PluginsConfig{
-			DefaultResolvers: []string{
-				"foo/repo/{{GroupPath}}/{{Product}}/{{Version}}/{{Product}}-{{OS}}-{{Arch}}-{{Version}}.tgz",
-			},
-			Plugins: []godellauncher.SinglePluginConfig{
-				{
-					LocatorWithResolverConfig: godellauncher.LocatorWithResolverConfig{
-						Locator: godellauncher.LocatorConfig{
-							ID: "com.palantir:plugin:1.0.0",
+		TasksConfig: godellauncher.TasksConfig{
+			Plugins: godellauncher.PluginsConfig{
+				DefaultResolvers: []string{
+					"foo/repo/{{GroupPath}}/{{Product}}/{{Version}}/{{Product}}-{{OS}}-{{Arch}}-{{Version}}.tgz",
+				},
+				Plugins: []godellauncher.SinglePluginConfig{
+					{
+						LocatorWithResolverConfig: artifactresolver.LocatorWithResolverConfig{
+							Locator: artifactresolver.LocatorConfig{
+								ID: "com.palantir:plugin:1.0.0",
+							},
 						},
-					},
-					Assets: []godellauncher.LocatorWithResolverConfig{
-						{
-							Locator: godellauncher.LocatorConfig{
-								ID: "com.palantir:asset:1.0.0",
+						Assets: []artifactresolver.LocatorWithResolverConfig{
+							{
+								Locator: artifactresolver.LocatorConfig{
+									ID: "com.palantir:asset:1.0.0",
+								},
 							},
 						},
 					},
@@ -113,13 +123,16 @@ plugins:
 func TestUnmarshalConfigWithDefaults(t *testing.T) {
 	cfgYAML := `
 default-tasks:
-  com.palantir.godel:format:
-    exclude-default-assets:
-      - com.palantir.godel:foo-asset
-      - com.palantir.godel:bar-asset
-    assets:
-      - locator:
-          id: "com.palantir.godel:bar-asset:1.0.0"
+  resolvers:
+    - default/repo/{{GroupPath}}/{{Product}}/{{Version}}/{{Product}}-{{OS}}-{{Arch}}-{{Version}}.tgz
+  tasks:
+    com.palantir.godel:format:
+      exclude-default-assets:
+        - com.palantir.godel:foo-asset
+        - com.palantir.godel:bar-asset
+      assets:
+        - locator:
+            id: "com.palantir.godel:bar-asset:1.0.0"
 plugins:
   resolvers:
     - foo/repo/{{GroupPath}}/{{Product}}/{{Version}}/{{Product}}-{{OS}}-{{Arch}}-{{Version}}.tgz
@@ -135,36 +148,43 @@ plugins:
 	require.NoError(t, err)
 
 	want := godellauncher.GodelConfig{
-		DefaultTasks: godellauncher.DefaultTasksConfig{
-			"com.palantir.godel:format": godellauncher.SingleDefaultTaskConfig{
-				DefaultAssetsToExclude: []string{
-					"com.palantir.godel:foo-asset",
-					"com.palantir.godel:bar-asset",
+		TasksConfig: godellauncher.TasksConfig{
+			DefaultTasks: godellauncher.DefaultTasksConfig{
+				DefaultResolvers: []string{
+					"default/repo/{{GroupPath}}/{{Product}}/{{Version}}/{{Product}}-{{OS}}-{{Arch}}-{{Version}}.tgz",
 				},
-				Assets: []godellauncher.LocatorWithResolverConfig{
+				Tasks: map[string]godellauncher.SingleDefaultTaskConfig{
+					"com.palantir.godel:format": {
+						DefaultAssetsToExclude: []string{
+							"com.palantir.godel:foo-asset",
+							"com.palantir.godel:bar-asset",
+						},
+						Assets: []artifactresolver.LocatorWithResolverConfig{
+							{
+								Locator: artifactresolver.LocatorConfig{
+									ID: "com.palantir.godel:bar-asset:1.0.0",
+								},
+							},
+						},
+					},
+				},
+			},
+			Plugins: godellauncher.PluginsConfig{
+				DefaultResolvers: []string{
+					"foo/repo/{{GroupPath}}/{{Product}}/{{Version}}/{{Product}}-{{OS}}-{{Arch}}-{{Version}}.tgz",
+				},
+				Plugins: []godellauncher.SinglePluginConfig{
 					{
-						Locator: godellauncher.LocatorConfig{
-							ID: "com.palantir.godel:bar-asset:1.0.0",
+						LocatorWithResolverConfig: artifactresolver.LocatorWithResolverConfig{
+							Locator: artifactresolver.LocatorConfig{
+								ID: "com.palantir:plugin:1.0.0",
+							},
 						},
-					},
-				},
-			},
-		},
-		Plugins: godellauncher.PluginsConfig{
-			DefaultResolvers: []string{
-				"foo/repo/{{GroupPath}}/{{Product}}/{{Version}}/{{Product}}-{{OS}}-{{Arch}}-{{Version}}.tgz",
-			},
-			Plugins: []godellauncher.SinglePluginConfig{
-				{
-					LocatorWithResolverConfig: godellauncher.LocatorWithResolverConfig{
-						Locator: godellauncher.LocatorConfig{
-							ID: "com.palantir:plugin:1.0.0",
-						},
-					},
-					Assets: []godellauncher.LocatorWithResolverConfig{
-						{
-							Locator: godellauncher.LocatorConfig{
-								ID: "com.palantir:asset:1.0.0",
+						Assets: []artifactresolver.LocatorWithResolverConfig{
+							{
+								Locator: artifactresolver.LocatorConfig{
+									ID: "com.palantir:asset:1.0.0",
+								},
 							},
 						},
 					},
@@ -173,4 +193,34 @@ plugins:
 		},
 	}
 	assert.Equal(t, want, got)
+}
+
+func TestPluginsConfig_ToParam(t *testing.T) {
+	cfgContent := `
+resolvers:
+  - https://localhost:8080/repo/{{GroupPath}}/{{Product}}/{{Version}}/{{Product}}-{{OS}}-{{Arch}}-{{Version}}.tgz
+plugins:
+  - locator:
+      id: "com.palantir:tester:1.0.0"
+      checksums:
+        darwin-amd64: d22c0ac9d3b65ebe5b830c1324f3d43e777ebc085c580af7c39fb1e5e3c909a7
+`
+	var cfg godellauncher.PluginsConfig
+	err := yaml.Unmarshal([]byte(cfgContent), &cfg)
+	require.NoError(t, err)
+	_, err = cfg.ToParam()
+	require.NoError(t, err)
+}
+
+func TestPluginsConfig_ToParam_InvalidLocator(t *testing.T) {
+	cfgContent := `
+plugins:
+  - locator:
+      id: "tester:1.0.0"
+`
+	var cfg godellauncher.PluginsConfig
+	err := yaml.Unmarshal([]byte(cfgContent), &cfg)
+	require.NoError(t, err)
+	_, err = cfg.ToParam()
+	assert.EqualError(t, err, `invalid locator: locator ID must consist of 3 colon-delimited components ([group]:[product]:[version]), but had 2: "tester:1.0.0"`)
 }
