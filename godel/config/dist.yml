@@ -9,4 +9,4 @@ products:
           arch: amd64
         - os: linux
           arch: amd64
-group-id: com.palantir.godel
+group-id: com.palantir.okgo
