@@ -37,6 +37,6 @@ okgo assets are executables that run specific checks. Assets must provide the fo
 
 Writing an asset
 ----------------
-`okgo` provides helper APIs to facilitate writing new assets. More detailed instructions for writing assets are
+okgo provides helper APIs to facilitate writing new assets. More detailed instructions for writing assets are
 forthcoming. In the meantime, the most effective way to write an asset is to examine the implementation of an existing
 asset.
