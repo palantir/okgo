@@ -67,6 +67,11 @@ func Run(projectParam okgo.ProjectParam, checkersToRun []okgo.CheckerType, pkgPa
 	jobs := make(chan okgo.CheckerParam)
 	results := make(chan checkResult, len(checkers))
 
+	// if there are fewer checkers than max parallelism, update parallelism to number of checkers
+	if len(checkers) < parallelism {
+		parallelism = len(checkers)
+	}
+
 	for w := 0; w < parallelism; w++ {
 		go singleCheckWorker(pkgPaths, projectDir, maxTypeLen, parallelism > 1, jobs, results, stdout)
 	}
