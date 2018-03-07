@@ -54,9 +54,24 @@ type ProjectConfig struct {
 
 func (c *ProjectConfig) ToParam(factory CheckerFactory) (ProjectParam, error) {
 	var checks map[CheckerType]CheckerParam
-	if len(c.Checks) > 0 {
+
+	allCheckerConfigs := make(map[CheckerType]CheckerConfig)
+	// populate provided configurations
+	for k, v := range c.Checks {
+		allCheckerConfigs[k] = v
+	}
+	// for all other checks, populate default configuration (contains only excludes)
+	allChecks := factory.AllCheckers()
+	for _, checkerType := range allChecks {
+		allCheckerConfigs[checkerType] = CheckerConfig{
+			Exclude: c.Exclude,
+		}
+	}
+
+	// create parameters
+	if len(allCheckerConfigs) > 0 {
 		checks = make(map[CheckerType]CheckerParam)
-		for k, v := range c.Checks {
+		for k, v := range allCheckerConfigs {
 			currParam, err := v.ToParam(k, factory, c.Exclude)
 			if err != nil {
 				return ProjectParam{}, err
@@ -64,6 +79,7 @@ func (c *ProjectConfig) ToParam(factory CheckerFactory) (ProjectParam, error) {
 			checks[k] = currParam
 		}
 	}
+
 	return ProjectParam{
 		ReleaseTag: c.ReleaseTag,
 		Checks:     checks,
@@ -105,11 +121,13 @@ func (c *CheckerConfig) ToParam(checkerType CheckerType, factory CheckerFactory,
 		}
 		filters = append(filters, currFilter)
 	}
+	combinedExcludeConfig := c.Exclude
+	combinedExcludeConfig.Add(globalExclude)
 	return CheckerParam{
 		Skip:    c.Skip,
 		Checker: checker,
 		Filters: filters,
-		Exclude: matcher.Any(c.Exclude.Matcher(), globalExclude.Matcher()),
+		Exclude: combinedExcludeConfig.Matcher(),
 	}, nil
 }
 
