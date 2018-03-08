@@ -45,11 +45,20 @@ type AssetTestCase struct {
 func RunAssetCheckTest(t *testing.T,
 	okgoPluginLocator, okgoPluginResolver string,
 	assetPath, checkName string,
+	testBaseDir string,
 	testCases []AssetTestCase,
 ) {
-
-	tmpDir, cleanup, err := dirs.TempDir("", "")
+	wd, err := os.Getwd()
 	require.NoError(t, err)
+	if testBaseDir != "" && !filepath.IsAbs(testBaseDir) {
+		testBaseDir = path.Join(wd, testBaseDir)
+	}
+
+	tmpDir, cleanup, err := dirs.TempDir(testBaseDir, "")
+	require.NoError(t, err)
+	if !filepath.IsAbs(tmpDir) {
+		tmpDir = path.Join(wd, tmpDir)
+	}
 	defer cleanup()
 
 	tmpDir, err = filepath.EvalSymlinks(tmpDir)
@@ -86,9 +95,6 @@ func RunAssetCheckTest(t *testing.T,
 		require.NoError(t, err)
 
 		func() {
-			wd, err := os.Getwd()
-			require.NoError(t, err)
-
 			wantWd := projectDir
 			if tc.Wd != "" {
 				wantWd = path.Join(wantWd, tc.Wd)
