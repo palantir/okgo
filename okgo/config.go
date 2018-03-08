@@ -56,16 +56,15 @@ func (c *ProjectConfig) ToParam(factory CheckerFactory) (ProjectParam, error) {
 	var checks map[CheckerType]CheckerParam
 
 	allCheckerConfigs := make(map[CheckerType]CheckerConfig)
-	// populate provided configurations
-	for k, v := range c.Checks {
-		allCheckerConfigs[k] = v
-	}
-	// for all other checks, populate default configuration (contains only excludes)
-	allChecks := factory.AllCheckers()
-	for _, checkerType := range allChecks {
+	// populate default configuration for all checks (contains only excludes)
+	for _, checkerType := range factory.AllCheckers() {
 		allCheckerConfigs[checkerType] = CheckerConfig{
 			Exclude: c.Exclude,
 		}
+	}
+	// populate provided configurations
+	for k, v := range c.Checks {
+		allCheckerConfigs[k] = v
 	}
 
 	// create parameters
