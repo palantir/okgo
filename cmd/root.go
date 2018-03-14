@@ -42,7 +42,7 @@ var RootCmd = &cobra.Command{
 
 func InitAssetCmds(args []string) error {
 	if _, _, err := RootCmd.Traverse(args); err != nil && err != pflag.ErrHelp {
-		return errors.Wrapf(err, "failed to parse arguments 2")
+		return errors.Wrapf(err, "failed to parse arguments")
 	}
 
 	// load checker assets
