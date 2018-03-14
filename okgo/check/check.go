@@ -81,14 +81,16 @@ func Run(projectParam okgo.ProjectParam, checkersToRun []okgo.CheckerType, pkgPa
 	}
 	close(jobs)
 
-	failureExists := false
+	var checksWithFailures []string
 	for range checkers {
 		checkResult := <-results
 		if checkResult.producedOutput {
-			failureExists = true
+			checksWithFailures = append(checksWithFailures, string(checkResult.checkerType))
 		}
 	}
-	if failureExists {
+	if len(checksWithFailures) > 0 {
+		sort.Strings(checksWithFailures)
+		fmt.Fprintln(stdout, "Checks produced output:", checksWithFailures)
 		// return empty failure to indicate non-zero exit code
 		return fmt.Errorf("")
 	}
