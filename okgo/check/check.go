@@ -79,7 +79,7 @@ func Run(projectParam okgo.ProjectParam, checkersToRun []okgo.CheckerType, pkgPa
 	}
 	if len(checksWithFailures) > 0 {
 		sort.Strings(checksWithFailures)
-		fmt.Fprintln(stdout, "Checks produced output:", checksWithFailures)
+		fmt.Fprintln(stdout, "Check(s) produced output:", checksWithFailures)
 		// return empty failure to indicate non-zero exit code
 		return fmt.Errorf("")
 	}
