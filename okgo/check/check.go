@@ -48,20 +48,9 @@ func Run(projectParam okgo.ProjectParam, checkersToRun []okgo.CheckerType, pkgPa
 		})
 	}
 
-	var rErr error
-	sort.Slice(checkers, func(i, j int) bool {
-		iPriority, err := checkers[i].Checker.Priority()
-		if err != nil && rErr == nil {
-			rErr = err
-		}
-		jPriority, err := checkers[j].Checker.Priority()
-		if err != nil && rErr == nil {
-			rErr = err
-		}
-		return iPriority < jPriority
-	})
-	if rErr != nil {
-		return errors.Wrapf(rErr, "failed to determine priority")
+	// sort the checkers
+	if err := sortCheckers(checkers); err != nil {
+		return err
 	}
 
 	jobs := make(chan okgo.CheckerParam)
@@ -93,6 +82,51 @@ func Run(projectParam okgo.ProjectParam, checkersToRun []okgo.CheckerType, pkgPa
 		fmt.Fprintln(stdout, "Checks produced output:", checksWithFailures)
 		// return empty failure to indicate non-zero exit code
 		return fmt.Errorf("")
+	}
+	return nil
+}
+
+func sortCheckers(checkers []okgo.CheckerParam) error {
+	var rErr error
+	sort.Slice(checkers, func(i, j int) bool {
+		var iPriority okgo.CheckerPriority
+		if checkers[i].Priority != nil {
+			iPriority = *checkers[i].Priority
+		} else {
+			iPriorityVal, err := checkers[i].Checker.Priority()
+			if err != nil && rErr == nil {
+				rErr = err
+			}
+			iPriority = iPriorityVal
+		}
+
+		var jPriority okgo.CheckerPriority
+		if checkers[j].Priority != nil {
+			jPriority = *checkers[j].Priority
+		} else {
+			jPriorityVal, err := checkers[j].Checker.Priority()
+			if err != nil && rErr == nil {
+				rErr = err
+			}
+			jPriority = jPriorityVal
+		}
+
+		if iPriority == jPriority {
+			// if priority is the same, sort alphabetically
+			iType, err := checkers[i].Checker.Type()
+			if err != nil && rErr == nil {
+				rErr = err
+			}
+			jType, err := checkers[j].Checker.Type()
+			if err != nil && rErr == nil {
+				rErr = err
+			}
+			return iType < jType
+		}
+		return iPriority < jPriority
+	})
+	if rErr != nil {
+		return errors.Wrapf(rErr, "failed to determine priority or type")
 	}
 	return nil
 }
