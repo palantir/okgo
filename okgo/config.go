@@ -86,15 +86,20 @@ func (c *ProjectConfig) ToParam(factory CheckerFactory) (ProjectParam, error) {
 }
 
 type CheckerParam struct {
-	Skip    bool
-	Checker Checker
-	Filters []Filter
-	Exclude matcher.Matcher
+	Skip     bool
+	Priority *CheckerPriority
+	Checker  Checker
+	Filters  []Filter
+	Exclude  matcher.Matcher
 }
 
 type CheckerConfig struct {
 	// Skip indicates whether or not the check should be skipped entirely.
 	Skip bool `yaml:"skip"`
+
+	// Priority is the priority for this check. If the value is non-nil, this value is used instead of the priority
+	// provided by the checker.
+	Priority *CheckerPriority `yaml:"priority"`
 
 	// Config is the YAML configuration content for the Checker.
 	Config yaml.MapSlice `yaml:"config"`
@@ -123,10 +128,11 @@ func (c *CheckerConfig) ToParam(checkerType CheckerType, factory CheckerFactory,
 	combinedExcludeConfig := c.Exclude
 	combinedExcludeConfig.Add(globalExclude)
 	return CheckerParam{
-		Skip:    c.Skip,
-		Checker: checker,
-		Filters: filters,
-		Exclude: combinedExcludeConfig.Matcher(),
+		Skip:     c.Skip,
+		Priority: c.Priority,
+		Checker:  checker,
+		Filters:  filters,
+		Exclude:  combinedExcludeConfig.Matcher(),
 	}, nil
 }
 
