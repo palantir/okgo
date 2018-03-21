@@ -64,7 +64,7 @@ func UpgradeLegacyConfig(cfgBytes []byte, factory okgo.CheckerFactory) ([]byte, 
 
 	upgradedCfg, err := upgradeLegacyConfig(legacyCfg, factory)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to upgrade config")
+		return nil, errors.Wrapf(err, "failed to upgrade legacy configuration")
 	}
 
 	// indicates that this is the default config
@@ -108,17 +108,17 @@ func upgradeLegacyConfig(legacyCfg legacyConfigStruct, factory okgo.CheckerFacto
 			Args:   legacyCfg.Checks[k].Args,
 		})
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to marshal asset configuration as YAML")
+			return nil, errors.Wrapf(err, "failed to marshal legacy asset configuration for check %q as YAML", k)
 		}
 
 		upgradedBytes, err := upgrader.UpgradeConfig(assetCfgBytes)
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to upgrade configuration for formatter %s", k)
+			return nil, errors.Wrapf(err, "failed to upgrade configuration for check %q", k)
 		}
 
 		var yamlRep yaml.MapSlice
 		if err := yaml.Unmarshal(upgradedBytes, &yamlRep); err != nil {
-			return nil, errors.Wrapf(err, "failed to unmarshal YAML")
+			return nil, errors.Wrapf(err, "failed to unmarshal YAML of upgraded configuration for check %q", k)
 		}
 
 		var filters []okgo.FilterConfig
