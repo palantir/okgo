@@ -42,8 +42,9 @@ type AssetTestCase struct {
 // RunAssetCheckTest tests the "check" operation using the provided asset. Resolves the okgo plugin using the provided
 // locator and resolver, provides it with the asset and invokes the "check" command for the specified asset.
 func RunAssetCheckTest(t *testing.T,
-	okgoPluginLocator, okgoPluginResolver string,
-	assetPath, checkName string,
+	pluginProvider pluginapitester.PluginProvider,
+	assetProvider pluginapitester.AssetProvider,
+	checkName string,
 	testBaseDir string,
 	testCases []AssetTestCase,
 ) {
@@ -83,9 +84,6 @@ func RunAssetCheckTest(t *testing.T,
 		_, err = gofiles.Write(projectDir, tc.Specs)
 		require.NoError(t, err)
 
-		pluginProvider, err := pluginapitester.NewPluginProviderFromLocator(okgoPluginLocator, okgoPluginResolver)
-		require.NoError(t, err)
-
 		outputBuf := &bytes.Buffer{}
 		func() {
 			wantWd := projectDir
@@ -101,7 +99,7 @@ func RunAssetCheckTest(t *testing.T,
 
 			runPluginCleanup, err := pluginapitester.RunPlugin(
 				pluginProvider,
-				[]pluginapitester.AssetProvider{pluginapitester.NewAssetProvider(assetPath)},
+				[]pluginapitester.AssetProvider{assetProvider},
 				"check", []string{checkName},
 				projectDir, false, outputBuf)
 			defer runPluginCleanup()
