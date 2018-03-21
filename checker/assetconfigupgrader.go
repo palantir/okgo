@@ -17,6 +17,7 @@ package checker
 import (
 	"encoding/base64"
 	"os/exec"
+	"strings"
 
 	"github.com/pkg/errors"
 
@@ -36,7 +37,12 @@ func (u *assetConfigUpgrader) UpgradeConfig(config []byte) ([]byte, error) {
 	upgradeConfigCmd := exec.Command(u.assetPath, "upgrade-config", base64.StdEncoding.EncodeToString(config))
 	output, err := upgradeConfigCmd.CombinedOutput()
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to upgrade asset configuration")
+		if _, ok := err.(*exec.ExitError); ok {
+			// if upgrade fails due to execution error, don't wrap it (will probably just be "exit 1")
+			output := strings.TrimSuffix(strings.TrimPrefix(string(output), "Error: "), "\n")
+			return nil, errors.Errorf("failed to upgrade asset configuration: %s", output)
+		}
+		return nil, errors.Wrapf(err, "failed to upgrade asset configuration: %s", output)
 	}
 	decodedBytes, err := base64.StdEncoding.DecodeString(string(output))
 	if err != nil {
