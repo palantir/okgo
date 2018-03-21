@@ -47,7 +47,7 @@ type Checker interface {
 }
 
 type CheckerFactory interface {
-	AllCheckers() []CheckerType
+	Types() []CheckerType
 	NewChecker(checkerType CheckerType, cfgYMLBytes []byte) (Checker, error)
 	ConfigUpgrader(checkerType CheckerType) (ConfigUpgrader, error)
 }

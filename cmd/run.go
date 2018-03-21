@@ -33,7 +33,7 @@ func init() {
 }
 
 func addRunSubcommands() {
-	for _, checkerType := range cliCheckerFactory.AllCheckers() {
+	for _, checkerType := range cliCheckerFactory.Types() {
 		runCheckCmd.AddCommand(createSingleRunCmd(checkerType, cliCheckerFactory))
 	}
 }

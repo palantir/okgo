@@ -89,7 +89,7 @@ func pkgsInProject(projectDir string) ([]string, error) {
 }
 
 func toCheckerTypes(in []string, factory okgo.CheckerFactory) ([]okgo.CheckerType, error) {
-	allCheckers := factory.AllCheckers()
+	allCheckers := factory.Types()
 	if len(in) == 0 {
 		return allCheckers, nil
 	}

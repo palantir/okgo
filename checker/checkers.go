@@ -62,60 +62,6 @@ func NewCreator(checkerType okgo.CheckerType, priority okgo.CheckerPriority, cre
 	}
 }
 
-type checkerFactory struct {
-	checkerCreators        map[okgo.CheckerType]CreatorFunction
-	checkerConfigUpgraders map[okgo.CheckerType]okgo.ConfigUpgrader
-}
-
-func (f *checkerFactory) AllCheckers() []okgo.CheckerType {
-	var checkers []okgo.CheckerType
-	for k := range f.checkerCreators {
-		checkers = append(checkers, k)
-	}
-	sort.Sort(okgo.ByCheckerType(checkers))
-	return checkers
-}
-
-func (f *checkerFactory) NewChecker(checkerType okgo.CheckerType, cfgYMLBytes []byte) (okgo.Checker, error) {
-	creatorFn, ok := f.checkerCreators[checkerType]
-	if !ok {
-		var checkerTypes []okgo.CheckerType
-		for k := range f.checkerCreators {
-			checkerTypes = append(checkerTypes, k)
-		}
-		sort.Sort(okgo.ByCheckerType(checkerTypes))
-		return nil, errors.Errorf("no checker registered for checker type %q (registered checkers: %v)", checkerType, checkerTypes)
-	}
-	return creatorFn(cfgYMLBytes)
-}
-
-func (f *checkerFactory) ConfigUpgrader(typeName okgo.CheckerType) (okgo.ConfigUpgrader, error) {
-	if _, ok := f.checkerCreators[typeName]; !ok {
-		return nil, errors.Errorf("check %q not registered (registered checks: %v)", typeName, f.AllCheckers())
-	}
-	upgrader, ok := f.checkerConfigUpgraders[typeName]
-	if !ok {
-		return nil, errors.Errorf("%s is a valid formatter but does not have a config upgrader", typeName)
-	}
-	return upgrader, nil
-}
-
-func NewCheckerFactory(providedCheckerCreators []Creator, providedConfigUpgraders []okgo.ConfigUpgrader) (okgo.CheckerFactory, error) {
-	checkerCreators := make(map[okgo.CheckerType]CreatorFunction)
-	for _, currCreator := range providedCheckerCreators {
-		checkerCreators[currCreator.Type()] = currCreator.Creator()
-	}
-	configUpgraders := make(map[okgo.CheckerType]okgo.ConfigUpgrader)
-	for _, currUpgrader := range providedConfigUpgraders {
-		currUpgrader := currUpgrader
-		configUpgraders[currUpgrader.TypeName()] = currUpgrader
-	}
-	return &checkerFactory{
-		checkerCreators:        checkerCreators,
-		checkerConfigUpgraders: configUpgraders,
-	}, nil
-}
-
 func AssetCheckerCreators(assetPaths ...string) ([]Creator, []okgo.ConfigUpgrader, error) {
 	var checkerCreators []Creator
 	var configUpgraders []okgo.ConfigUpgrader

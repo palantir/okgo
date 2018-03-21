@@ -16,37 +16,13 @@ package cmd
 
 import (
 	"github.com/palantir/godel/framework/pluginapi"
-	"github.com/palantir/godel/pkg/versionedconfig"
-	"github.com/pkg/errors"
-	"gopkg.in/yaml.v2"
 
-	"github.com/palantir/okgo/internal/legacy"
-	"github.com/palantir/okgo/okgo"
+	"github.com/palantir/okgo/okgo/config"
 )
 
-var upgradeConfigCmd = pluginapi.CobraUpgradeConfigCmd(upgradeConfig)
-
-func upgradeConfig(cfgBytes []byte) ([]byte, error) {
-	if legacy.IsLegacyConfig(cfgBytes) {
-		return legacy.UpgradeLegacyConfig(cfgBytes, cliCheckerFactory)
-	}
-
-	version, err := versionedconfig.ConfigVersion(cfgBytes)
-	if err != nil {
-		return nil, err
-	}
-	switch version {
-	case "", "0":
-		var cfg okgo.ProjectConfig
-		if err := yaml.UnmarshalStrict(cfgBytes, &cfg); err != nil {
-			return nil, errors.Wrapf(err, "failed to unmarshal input as v0 YAML")
-		}
-		// input is valid current configuration: return exactly
-		return cfgBytes, nil
-	default:
-		return nil, errors.Errorf("unsupported version: %s", version)
-	}
-}
+var upgradeConfigCmd = pluginapi.CobraUpgradeConfigCmd(func(cfgBytes []byte) ([]byte, error) {
+	return config.UpgradeConfig(cfgBytes, cliCheckerFactory)
+})
 
 func init() {
 	RootCmd.AddCommand(upgradeConfigCmd)
