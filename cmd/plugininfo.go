@@ -46,6 +46,9 @@ var PluginInfo = pluginapi.MustNewPluginInfo(
 		runCheckCmd.Short,
 		pluginapi.TaskInfoCommand(runCheckCmd.Name()),
 	),
+	pluginapi.PluginInfoUpgradeConfigTaskInfo(
+		pluginapi.UpgradeConfigTaskInfoCommand("upgrade-config"),
+	),
 )
 
 func intPtr(val int) *int {

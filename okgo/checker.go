@@ -49,6 +49,7 @@ type Checker interface {
 type CheckerFactory interface {
 	AllCheckers() []CheckerType
 	NewChecker(checkerType CheckerType, cfgYMLBytes []byte) (Checker, error)
+	ConfigUpgrader(checkerType CheckerType) (ConfigUpgrader, error)
 }
 
 // NewIssueFromJSON creates an Issue from the provided input. If the provided input is the JSON representation of an

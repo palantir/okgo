@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"io/ioutil"
 	"path"
 
 	"github.com/palantir/godel/framework/godellauncher"
@@ -22,6 +23,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"gopkg.in/yaml.v2"
 
 	"github.com/palantir/okgo/checker"
 	"github.com/palantir/okgo/okgo"
@@ -46,11 +48,11 @@ func InitAssetCmds(args []string) error {
 	}
 
 	// load checker assets
-	checkerCreators, err := checker.AssetCheckerCreators(assetsFlagVal...)
+	checkerCreators, configUpgraders, err := checker.AssetCheckerCreators(assetsFlagVal...)
 	if err != nil {
 		return err
 	}
-	cliCheckerFactory, err = checker.NewCheckerFactory(checkerCreators...)
+	cliCheckerFactory, err = checker.NewCheckerFactory(checkerCreators, configUpgraders)
 	if err != nil {
 		return err
 	}
@@ -75,7 +77,7 @@ func okgoProjectParamFromFlags() (okgo.ProjectParam, error) {
 func okgoProjectParamFromVals(okgoConfigFile, godelConfigFile string, factory okgo.CheckerFactory) (okgo.ProjectParam, error) {
 	var okgoCfg okgo.ProjectConfig
 	if okgoConfigFile != "" {
-		cfg, err := okgo.LoadConfigFromFile(okgoConfigFile)
+		cfg, err := loadConfigFromFile(okgoConfigFile)
 		if err != nil {
 			return okgo.ProjectParam{}, err
 		}
@@ -93,4 +95,22 @@ func okgoProjectParamFromVals(okgoConfigFile, godelConfigFile string, factory ok
 		return okgo.ProjectParam{}, err
 	}
 	return projectParam, nil
+}
+
+func loadConfigFromFile(cfgFile string) (okgo.ProjectConfig, error) {
+	cfgBytes, err := ioutil.ReadFile(cfgFile)
+	if err != nil {
+		return okgo.ProjectConfig{}, errors.Wrapf(err, "failed to read configuration file")
+	}
+
+	upgradedCfg, err := upgradeConfig(cfgBytes)
+	if err != nil {
+		return okgo.ProjectConfig{}, err
+	}
+
+	var cfg okgo.ProjectConfig
+	if err := yaml.Unmarshal(upgradedCfg, &cfg); err != nil {
+		return okgo.ProjectConfig{}, errors.Wrapf(err, "failed to unmarshal configuration")
+	}
+	return cfg, nil
 }

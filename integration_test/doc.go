@@ -12,27 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package okgo
-
-import (
-	"io/ioutil"
-
-	"github.com/pkg/errors"
-	"gopkg.in/yaml.v2"
-)
-
-func LoadConfigFromFile(cfgFile string) (ProjectConfig, error) {
-	cfgBytes, err := ioutil.ReadFile(cfgFile)
-	if err != nil {
-		return ProjectConfig{}, errors.Wrapf(err, "failed to read configuration file")
-	}
-	return LoadConfig(cfgBytes)
-}
-
-func LoadConfig(cfgBytes []byte) (ProjectConfig, error) {
-	var cfg ProjectConfig
-	if err := yaml.Unmarshal(cfgBytes, &cfg); err != nil {
-		return ProjectConfig{}, errors.Wrapf(err, "failed to unmarshal configuration")
-	}
-	return cfg, nil
-}
+// Package integration contains the integration tests for gödel.
+package integration
