@@ -20,20 +20,20 @@ import (
 	"github.com/palantir/pkg/cobracli"
 )
 
-var PluginInfo = pluginapi.MustNewInfo(
-	"com.palantir.godel",
-	"okgo-plugin",
+var PluginInfo = pluginapi.MustNewPluginInfo(
+	"com.palantir.okgo",
+	"check-plugin",
 	cobracli.Version,
-	"check.yml",
-	pluginapi.MustNewTaskInfo(
+	pluginapi.PluginInfoUsesConfigFile(),
+	pluginapi.PluginInfoGlobalFlagOptions(
+		pluginapi.GlobalFlagOptionsParamDebugFlag("--"+pluginapi.DebugFlagName),
+		pluginapi.GlobalFlagOptionsParamProjectDirFlag("--"+pluginapi.ProjectDirFlagName),
+		pluginapi.GlobalFlagOptionsParamGodelConfigFlag("--"+pluginapi.GodelConfigFlagName),
+		pluginapi.GlobalFlagOptionsParamConfigFlag("--"+pluginapi.ConfigFlagName),
+	),
+	pluginapi.PluginInfoTaskInfo(
 		checkCmd.Name(),
 		checkCmd.Short,
-		pluginapi.TaskInfoGlobalFlagOptions(pluginapi.NewGlobalFlagOptions(
-			pluginapi.GlobalFlagOptionsParamDebugFlag("--"+pluginapi.DebugFlagName),
-			pluginapi.GlobalFlagOptionsParamProjectDirFlag("--"+pluginapi.ProjectDirFlagName),
-			pluginapi.GlobalFlagOptionsParamGodelConfigFlag("--"+pluginapi.GodelConfigFlagName),
-			pluginapi.GlobalFlagOptionsParamConfigFlag("--"+pluginapi.ConfigFlagName),
-		)),
 		pluginapi.TaskInfoCommand(checkCmd.Name()),
 		pluginapi.TaskInfoVerifyOptions(
 			pluginapi.NewVerifyOptions(
@@ -41,15 +41,9 @@ var PluginInfo = pluginapi.MustNewInfo(
 			),
 		),
 	),
-	pluginapi.MustNewTaskInfo(
+	pluginapi.PluginInfoTaskInfo(
 		runCheckCmd.Name(),
 		runCheckCmd.Short,
-		pluginapi.TaskInfoGlobalFlagOptions(pluginapi.NewGlobalFlagOptions(
-			pluginapi.GlobalFlagOptionsParamDebugFlag("--"+pluginapi.DebugFlagName),
-			pluginapi.GlobalFlagOptionsParamProjectDirFlag("--"+pluginapi.ProjectDirFlagName),
-			pluginapi.GlobalFlagOptionsParamGodelConfigFlag("--"+pluginapi.GodelConfigFlagName),
-			pluginapi.GlobalFlagOptionsParamConfigFlag("--"+pluginapi.ConfigFlagName),
-		)),
 		pluginapi.TaskInfoCommand(runCheckCmd.Name()),
 	),
 )
