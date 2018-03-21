@@ -1,5 +1,5 @@
 products:
-  okgo-plugin:
+  check-plugin:
     build:
       main-pkg: .
       environment:

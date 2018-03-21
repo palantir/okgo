@@ -25,7 +25,6 @@ import (
 
 	"github.com/nmiyake/pkg/dirs"
 	"github.com/nmiyake/pkg/gofiles"
-	"github.com/palantir/godel/framework/artifactresolver"
 	"github.com/palantir/godel/framework/pluginapitester"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -84,16 +83,10 @@ func RunAssetCheckTest(t *testing.T,
 		_, err = gofiles.Write(projectDir, tc.Specs)
 		require.NoError(t, err)
 
-		outputBuf := &bytes.Buffer{}
-		pluginCfg := artifactresolver.LocatorWithResolverConfig{
-			Locator: artifactresolver.LocatorConfig{
-				ID: okgoPluginLocator,
-			},
-			Resolver: okgoPluginResolver,
-		}
-		pluginsParam, err := pluginCfg.ToParam()
+		pluginProvider, err := pluginapitester.NewPluginProviderFromLocator(okgoPluginLocator, okgoPluginResolver)
 		require.NoError(t, err)
 
+		outputBuf := &bytes.Buffer{}
 		func() {
 			wantWd := projectDir
 			if tc.Wd != "" {
@@ -106,9 +99,11 @@ func RunAssetCheckTest(t *testing.T,
 				require.NoError(t, err)
 			}()
 
-			runPluginCleanup, err := pluginapitester.RunAsset(pluginsParam, []string{assetPath}, "check", []string{
-				checkName,
-			}, projectDir, false, outputBuf)
+			runPluginCleanup, err := pluginapitester.RunPlugin(
+				pluginProvider,
+				[]pluginapitester.AssetProvider{pluginapitester.NewAssetProvider(assetPath)},
+				"check", []string{checkName},
+				projectDir, false, outputBuf)
 			defer runPluginCleanup()
 			if tc.WantError {
 				require.EqualError(t, err, "", "Case %d: %s", i, tc.Name)
