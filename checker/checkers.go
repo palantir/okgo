@@ -63,7 +63,8 @@ func NewCreator(checkerType okgo.CheckerType, priority okgo.CheckerPriority, cre
 }
 
 type checkerFactory struct {
-	checkerCreators map[okgo.CheckerType]CreatorFunction
+	checkerCreators        map[okgo.CheckerType]CreatorFunction
+	checkerConfigUpgraders map[okgo.CheckerType]okgo.ConfigUpgrader
 }
 
 func (f *checkerFactory) AllCheckers() []okgo.CheckerType {
@@ -88,18 +89,36 @@ func (f *checkerFactory) NewChecker(checkerType okgo.CheckerType, cfgYMLBytes []
 	return creatorFn(cfgYMLBytes)
 }
 
-func NewCheckerFactory(providedCheckerCreators ...Creator) (okgo.CheckerFactory, error) {
+func (f *checkerFactory) ConfigUpgrader(typeName okgo.CheckerType) (okgo.ConfigUpgrader, error) {
+	if _, ok := f.checkerCreators[typeName]; !ok {
+		return nil, errors.Errorf("check %q not registered (registered checks: %v)", typeName, f.AllCheckers())
+	}
+	upgrader, ok := f.checkerConfigUpgraders[typeName]
+	if !ok {
+		return nil, errors.Errorf("%s is a valid formatter but does not have a config upgrader", typeName)
+	}
+	return upgrader, nil
+}
+
+func NewCheckerFactory(providedCheckerCreators []Creator, providedConfigUpgraders []okgo.ConfigUpgrader) (okgo.CheckerFactory, error) {
 	checkerCreators := make(map[okgo.CheckerType]CreatorFunction)
 	for _, currCreator := range providedCheckerCreators {
 		checkerCreators[currCreator.Type()] = currCreator.Creator()
 	}
+	configUpgraders := make(map[okgo.CheckerType]okgo.ConfigUpgrader)
+	for _, currUpgrader := range providedConfigUpgraders {
+		currUpgrader := currUpgrader
+		configUpgraders[currUpgrader.TypeName()] = currUpgrader
+	}
 	return &checkerFactory{
-		checkerCreators: checkerCreators,
+		checkerCreators:        checkerCreators,
+		checkerConfigUpgraders: configUpgraders,
 	}, nil
 }
 
-func AssetCheckerCreators(assetPaths ...string) ([]Creator, error) {
+func AssetCheckerCreators(assetPaths ...string) ([]Creator, []okgo.ConfigUpgrader, error) {
 	var checkerCreators []Creator
+	var configUpgraders []okgo.ConfigUpgrader
 	checkerTypeToAssets := make(map[okgo.CheckerType][]string)
 	for _, currAssetPath := range assetPaths {
 		currChecker := assetChecker{
@@ -107,11 +126,11 @@ func AssetCheckerCreators(assetPaths ...string) ([]Creator, error) {
 		}
 		checkerType, err := currChecker.Type()
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to determine Checker type name for asset %s", currAssetPath)
+			return nil, nil, errors.Wrapf(err, "failed to determine Checker type name for asset %s", currAssetPath)
 		}
 		checkerPriority, err := currChecker.Priority()
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to determine Checker priority for asset %s", currAssetPath)
+			return nil, nil, errors.Wrapf(err, "failed to determine Checker priority for asset %s", currAssetPath)
 		}
 		checkerTypeToAssets[checkerType] = append(checkerTypeToAssets[checkerType], currAssetPath)
 		checkerCreators = append(checkerCreators, NewCreator(checkerType, checkerPriority,
@@ -122,6 +141,10 @@ func AssetCheckerCreators(assetPaths ...string) ([]Creator, error) {
 				}
 				return &currChecker, nil
 			}))
+		configUpgraders = append(configUpgraders, &assetConfigUpgrader{
+			typeName:  checkerType,
+			assetPath: currAssetPath,
+		})
 	}
 	var sortedKeys []okgo.CheckerType
 	for k := range checkerTypeToAssets {
@@ -133,9 +156,9 @@ func AssetCheckerCreators(assetPaths ...string) ([]Creator, error) {
 			continue
 		}
 		sort.Strings(checkerTypeToAssets[k])
-		return nil, errors.Errorf("Checker type %s provided by multiple assets: %v", k, checkerTypeToAssets[k])
+		return nil, nil, errors.Errorf("Checker type %s provided by multiple assets: %v", k, checkerTypeToAssets[k])
 	}
-	return checkerCreators, nil
+	return checkerCreators, configUpgraders, nil
 }
 
 // RunCommandAndStreamOutput runs the provided exec.Cmd. The output that is generated to Stdout and Stderr for the

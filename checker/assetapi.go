@@ -25,7 +25,7 @@ import (
 	"github.com/palantir/okgo/okgo"
 )
 
-func AssetRootCmd(creator Creator, short string) *cobra.Command {
+func AssetRootCmd(creator Creator, upgradeConfigFn pluginapi.UpgradeConfigFn, short string) *cobra.Command {
 	checkerType := creator.Type()
 	rootCmd := &cobra.Command{
 		Use:   string(checkerType),
@@ -38,6 +38,7 @@ func AssetRootCmd(creator Creator, short string) *cobra.Command {
 	rootCmd.AddCommand(newVerifyConfigCmd(creatorFn))
 	rootCmd.AddCommand(newCheckCmd(creatorFn))
 	rootCmd.AddCommand(newRunCheckCmdCmd(creatorFn))
+	rootCmd.AddCommand(pluginapi.CobraUpgradeConfigCmd(upgradeConfigFn))
 
 	return rootCmd
 }

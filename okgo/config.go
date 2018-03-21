@@ -163,11 +163,14 @@ type FilterConfig struct {
 }
 
 func (f *FilterConfig) ToFilter() (Filter, error) {
+	var filterCreator func(string) (Filter, error)
 	switch f.Type {
 	case "", MessageFilterType:
-		return newMessageFilter(f.Value)
+		filterCreator = newMessageFilter
+	default:
+		return nil, errors.Errorf("unrecognized filter type %s", f.Type)
 	}
-	return nil, errors.Errorf("unrecognized filter type %s", f.Type)
+	return filterCreator(f.Value)
 }
 
 type FilterType string
