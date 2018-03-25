@@ -38,21 +38,27 @@ func (f paramFunc) apply(c *amalgomatedChecker) {
 	f(c)
 }
 
-func Priority(priority okgo.CheckerPriority) AmalgomatedCheckerParam {
+func ParamPriority(priority okgo.CheckerPriority) AmalgomatedCheckerParam {
 	return paramFunc(func(c *amalgomatedChecker) {
 		c.priority = priority
 	})
 }
 
-func LineParserWithWd(lineParserWithWd func(line, wd string) okgo.Issue) AmalgomatedCheckerParam {
+func ParamLineParserWithWd(lineParserWithWd func(line, wd string) okgo.Issue) AmalgomatedCheckerParam {
 	return paramFunc(func(c *amalgomatedChecker) {
 		c.lineParserWithWd = lineParserWithWd
 	})
 }
 
-func IncludeProjectDirFlag() AmalgomatedCheckerParam {
+func ParamIncludeProjectDirFlag() AmalgomatedCheckerParam {
 	return paramFunc(func(c *amalgomatedChecker) {
 		c.includeProjectDirFlag = true
+	})
+}
+
+func ParamArgs(args ...string) AmalgomatedCheckerParam {
+	return paramFunc(func(c *amalgomatedChecker) {
+		c.args = args
 	})
 }
 
@@ -75,6 +81,7 @@ type amalgomatedChecker struct {
 	priority              okgo.CheckerPriority
 	lineParserWithWd      func(line, wd string) okgo.Issue
 	includeProjectDirFlag bool
+	args                  []string
 }
 
 func (c *amalgomatedChecker) Type() (okgo.CheckerType, error) {
@@ -90,6 +97,7 @@ func (c *amalgomatedChecker) Check(pkgPaths []string, projectDir string, stdout 
 	if c.includeProjectDirFlag {
 		args = append(args, "--"+pluginapi.ProjectDirFlagName, projectDir)
 	}
+	args = append(args, c.args...)
 	args = append(args, pkgPaths...)
 
 	cmd, wd := AmalgomatedCheckCmd(string(c.typeName), args, stdout)
