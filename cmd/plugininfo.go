@@ -15,7 +15,7 @@
 package cmd
 
 import (
-	"github.com/palantir/godel/framework/pluginapi"
+	"github.com/palantir/godel/framework/pluginapi/v2/pluginapi"
 	"github.com/palantir/godel/framework/verifyorder"
 	"github.com/palantir/pkg/cobracli"
 )
@@ -36,9 +36,7 @@ var PluginInfo = pluginapi.MustNewPluginInfo(
 		checkCmd.Short,
 		pluginapi.TaskInfoCommand(checkCmd.Name()),
 		pluginapi.TaskInfoVerifyOptions(
-			pluginapi.NewVerifyOptions(
-				pluginapi.VerifyOptionsOrdering(intPtr(verifyorder.Check)),
-			),
+			pluginapi.VerifyOptionsOrdering(intPtr(verifyorder.Check)),
 		),
 	),
 	pluginapi.PluginInfoTaskInfo(
@@ -48,6 +46,7 @@ var PluginInfo = pluginapi.MustNewPluginInfo(
 	),
 	pluginapi.PluginInfoUpgradeConfigTaskInfo(
 		pluginapi.UpgradeConfigTaskInfoCommand("upgrade-config"),
+		pluginapi.LegacyConfigFile("check.yml"),
 	),
 )
 
