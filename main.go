@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/palantir/godel/framework/pluginapi"
+	"github.com/palantir/godel/framework/pluginapi/v2/pluginapi"
 	"github.com/palantir/pkg/cobracli"
 
 	"github.com/palantir/okgo/cmd"
