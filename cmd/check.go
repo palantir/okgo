@@ -20,6 +20,7 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/palantir/pkg/matcher"
 	"github.com/palantir/pkg/pkgpath"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -33,7 +34,7 @@ var (
 		Use:   "check [flags] [checks]",
 		Short: "Run checks (runs all checks if none are specified)",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			projectParam, err := okgoProjectParamFromFlags()
+			projectParam, godelExcludeMatcher, err := okgoProjectParamFromFlags()
 			if err != nil {
 				return err
 			}
@@ -41,7 +42,7 @@ var (
 			if parallelFlagVal {
 				parallelism = runtime.NumCPU()
 			}
-			pkgs, err := pkgsInProject(projectDirFlagVal)
+			pkgs, err := pkgsInProject(projectDirFlagVal, godelExcludeMatcher)
 			if err != nil {
 				return err
 			}
@@ -56,7 +57,7 @@ var (
 	parallelFlagVal bool
 )
 
-func pkgsInProject(projectDir string) ([]string, error) {
+func pkgsInProject(projectDir string, exclude matcher.Matcher) ([]string, error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to determine working directory")
@@ -72,7 +73,7 @@ func pkgsInProject(projectDir string) ([]string, error) {
 		}
 		relPathPrefix = relPathPrefixVal
 	}
-	pkgs, err := pkgpath.PackagesInDir(projectDir, nil)
+	pkgs, err := pkgpath.PackagesInDir(projectDir, exclude)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to list packages")
 	}

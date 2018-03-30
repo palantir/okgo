@@ -188,6 +188,13 @@ func runCheck(checkerType okgo.CheckerType, outputPrefix string, checkerParam ok
 
 			if issue.Path != "" {
 				// legitimate issue: determine whether or not it should be filtered out
+
+				// if path matches exclude, skip
+				if checkerParam.Exclude != nil && checkerParam.Exclude.Match(issue.Path) {
+					continue
+				}
+
+				// if path matches filter, skip
 				filterOut := false
 				for _, filter := range checkerParam.Filters {
 					if filter.Filter(issue) {
