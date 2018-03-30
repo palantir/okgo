@@ -19,6 +19,7 @@ import (
 
 	godelconfig "github.com/palantir/godel/framework/godel/config"
 	"github.com/palantir/godel/framework/pluginapi"
+	"github.com/palantir/pkg/matcher"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -71,31 +72,36 @@ func init() {
 	pluginapi.AddAssetsPFlagPtr(RootCmd.PersistentFlags(), &assetsFlagVal)
 }
 
-func okgoProjectParamFromFlags() (okgo.ProjectParam, error) {
+func okgoProjectParamFromFlags() (okgo.ProjectParam, matcher.Matcher, error) {
 	return okgoProjectParamFromVals(okgoConfigFileFlagVal, godelConfigFileFlagVal, cliCheckerFactory)
 }
 
-func okgoProjectParamFromVals(okgoConfigFile, godelConfigFile string, factory okgo.CheckerFactory) (okgo.ProjectParam, error) {
+func okgoProjectParamFromVals(okgoConfigFile, godelConfigFile string, factory okgo.CheckerFactory) (okgo.ProjectParam, matcher.Matcher, error) {
 	var okgoCfg config.ProjectConfig
 	if okgoConfigFile != "" {
 		cfg, err := loadConfigFromFile(okgoConfigFile)
 		if err != nil {
-			return okgo.ProjectParam{}, err
+			return okgo.ProjectParam{}, nil, err
 		}
 		okgoCfg = cfg
 	}
+	var godelExcludes matcher.Matcher
 	if godelConfigFile != "" {
 		cfg, err := godelconfig.ReadGodelConfigFromFile(godelConfigFile)
 		if err != nil {
-			return okgo.ProjectParam{}, err
+			return okgo.ProjectParam{}, nil, err
 		}
+		godelExcludes = cfg.Exclude.Matcher()
 		okgoCfg.Exclude.Add(cfg.Exclude)
 	}
 	projectParam, err := okgoCfg.ToParam(factory)
 	if err != nil {
-		return okgo.ProjectParam{}, err
+		return okgo.ProjectParam{}, nil, err
 	}
-	return projectParam, nil
+	if godelExcludes == nil {
+		return projectParam, nil, nil
+	}
+	return projectParam, godelExcludes, nil
 }
 
 func loadConfigFromFile(cfgFile string) (config.ProjectConfig, error) {
