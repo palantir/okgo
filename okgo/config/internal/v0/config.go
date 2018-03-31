@@ -32,41 +32,41 @@ type ProjectConfig struct {
 	// and the codebase being checked contains build tags for the newer Go version, this value should be explicitly
 	// set. For example, if the check tool was compiled using Go 1.8 but the codebase being checked uses Go 1.7 and
 	// contains files that use the "// +build go1.8" build tag, then this should be set to "go1.7".
-	ReleaseTag string `yaml:"release-tag"`
+	ReleaseTag string `yaml:"release-tag,omitempty"`
 
 	// Checks specifies the configuration used by the checks. The key is the name of the check and the value is the
 	// custom configuration for that check.
-	Checks map[okgo.CheckerType]CheckerConfig `yaml:"checks"`
+	Checks map[okgo.CheckerType]CheckerConfig `yaml:"checks,omitempty"`
 
 	// Exclude specifies the paths that should be excluded from all checks.
-	Exclude matcher.NamesPathsCfg `yaml:"exclude"`
+	Exclude matcher.NamesPathsCfg `yaml:"exclude,omitempty"`
 }
 
 type CheckerConfig struct {
 	// Skip indicates whether or not the check should be skipped entirely.
-	Skip bool `yaml:"skip"`
+	Skip bool `yaml:"skip,omitempty"`
 
 	// Priority is the priority for this check. If the value is non-nil, this value is used instead of the priority
 	// provided by the checker.
-	Priority *int `yaml:"priority"`
+	Priority *int `yaml:"priority,omitempty"`
 
 	// Config is the YAML configuration content for the Checker.
-	Config yaml.MapSlice `yaml:"config"`
+	Config yaml.MapSlice `yaml:"config,omitempty"`
 
 	// Filters specifies the filter definitions. Raw output lines that match the filter are excluded from
 	// processing.
-	Filters []FilterConfig `yaml:"filters"`
+	Filters []FilterConfig `yaml:"filters,omitempty"`
 
 	// Exclude specifies the paths that should be excluded from this check.
-	Exclude matcher.NamesPathsCfg `yaml:"exclude"`
+	Exclude matcher.NamesPathsCfg `yaml:"exclude,omitempty"`
 }
 
 type FilterConfig struct {
 	// Type specifies the type of the filter.
-	Type FilterType `yaml:"type"`
+	Type FilterType `yaml:"type,omitempty"`
 
 	// Value is the value of the filter.
-	Value string `yaml:"value"`
+	Value string `yaml:"value,omitempty"`
 }
 
 type FilterType string

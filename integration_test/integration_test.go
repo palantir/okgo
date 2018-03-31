@@ -46,7 +46,6 @@ exclude:
 				WantOutput: "Upgraded configuration for check-plugin.yml\n",
 				WantFiles: map[string]string{
 					"godel/config/check-plugin.yml": `release-tag: go1.7
-checks: {}
 exclude:
   names:
   - m?cks
