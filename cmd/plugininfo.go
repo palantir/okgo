@@ -17,37 +17,39 @@ package cmd
 import (
 	"github.com/palantir/godel/framework/pluginapi/v2/pluginapi"
 	"github.com/palantir/godel/framework/verifyorder"
-	"github.com/palantir/pkg/cobracli"
 )
 
-var PluginInfo = pluginapi.MustNewPluginInfo(
-	"com.palantir.okgo",
-	"check-plugin",
-	cobracli.Version,
-	pluginapi.PluginInfoUsesConfigFile(),
-	pluginapi.PluginInfoGlobalFlagOptions(
-		pluginapi.GlobalFlagOptionsParamDebugFlag("--"+pluginapi.DebugFlagName),
-		pluginapi.GlobalFlagOptionsParamProjectDirFlag("--"+pluginapi.ProjectDirFlagName),
-		pluginapi.GlobalFlagOptionsParamGodelConfigFlag("--"+pluginapi.GodelConfigFlagName),
-		pluginapi.GlobalFlagOptionsParamConfigFlag("--"+pluginapi.ConfigFlagName),
-	),
-	pluginapi.PluginInfoTaskInfo(
-		checkCmd.Name(),
-		checkCmd.Short,
-		pluginapi.TaskInfoCommand(checkCmd.Name()),
-		pluginapi.TaskInfoVerifyOptions(
-			pluginapi.VerifyOptionsOrdering(intPtr(verifyorder.Check)),
+var (
+	Version    = "unspecified"
+	PluginInfo = pluginapi.MustNewPluginInfo(
+		"com.palantir.okgo",
+		"check-plugin",
+		Version,
+		pluginapi.PluginInfoUsesConfigFile(),
+		pluginapi.PluginInfoGlobalFlagOptions(
+			pluginapi.GlobalFlagOptionsParamDebugFlag("--"+pluginapi.DebugFlagName),
+			pluginapi.GlobalFlagOptionsParamProjectDirFlag("--"+pluginapi.ProjectDirFlagName),
+			pluginapi.GlobalFlagOptionsParamGodelConfigFlag("--"+pluginapi.GodelConfigFlagName),
+			pluginapi.GlobalFlagOptionsParamConfigFlag("--"+pluginapi.ConfigFlagName),
 		),
-	),
-	pluginapi.PluginInfoTaskInfo(
-		runCheckCmd.Name(),
-		runCheckCmd.Short,
-		pluginapi.TaskInfoCommand(runCheckCmd.Name()),
-	),
-	pluginapi.PluginInfoUpgradeConfigTaskInfo(
-		pluginapi.UpgradeConfigTaskInfoCommand("upgrade-config"),
-		pluginapi.LegacyConfigFile("check.yml"),
-	),
+		pluginapi.PluginInfoTaskInfo(
+			checkCmd.Name(),
+			checkCmd.Short,
+			pluginapi.TaskInfoCommand(checkCmd.Name()),
+			pluginapi.TaskInfoVerifyOptions(
+				pluginapi.VerifyOptionsOrdering(intPtr(verifyorder.Check)),
+			),
+		),
+		pluginapi.PluginInfoTaskInfo(
+			runCheckCmd.Name(),
+			runCheckCmd.Short,
+			pluginapi.TaskInfoCommand(runCheckCmd.Name()),
+		),
+		pluginapi.PluginInfoUpgradeConfigTaskInfo(
+			pluginapi.UpgradeConfigTaskInfoCommand("upgrade-config"),
+			pluginapi.LegacyConfigFile("check.yml"),
+		),
+	)
 )
 
 func intPtr(val int) *int {
