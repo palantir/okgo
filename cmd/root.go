@@ -32,6 +32,7 @@ import (
 )
 
 var (
+	DebugFlagVal           bool
 	projectDirFlagVal      string
 	okgoConfigFileFlagVal  string
 	godelConfigFileFlagVal string
@@ -66,6 +67,7 @@ func InitAssetCmds(args []string) error {
 }
 
 func init() {
+	pluginapi.AddDebugPFlagPtr(RootCmd.PersistentFlags(), &DebugFlagVal)
 	pluginapi.AddProjectDirPFlagPtr(RootCmd.PersistentFlags(), &projectDirFlagVal)
 	pluginapi.AddConfigPFlagPtr(RootCmd.PersistentFlags(), &okgoConfigFileFlagVal)
 	pluginapi.AddGodelConfigPFlagPtr(RootCmd.PersistentFlags(), &godelConfigFileFlagVal)

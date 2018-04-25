@@ -9,4 +9,5 @@ products:
           arch: amd64
         - os: linux
           arch: amd64
+      version-var: github.com/palantir/okgo/cmd.Version
 group-id: com.palantir.okgo
