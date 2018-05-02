@@ -19,6 +19,7 @@ import (
 
 	godelconfig "github.com/palantir/godel/framework/godel/config"
 	"github.com/palantir/godel/framework/pluginapi"
+	"github.com/palantir/pkg/cobracli"
 	"github.com/palantir/pkg/matcher"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -32,7 +33,7 @@ import (
 )
 
 var (
-	DebugFlagVal           bool
+	debugFlagVal           bool
 	projectDirFlagVal      string
 	okgoConfigFileFlagVal  string
 	godelConfigFileFlagVal string
@@ -41,12 +42,16 @@ var (
 	cliCheckerFactory okgo.CheckerFactory
 )
 
-var RootCmd = &cobra.Command{
+var rootCmd = &cobra.Command{
 	Use: "okgo",
 }
 
+func Execute() int {
+	return cobracli.ExecuteWithDebugVarAndDefaultParams(rootCmd, &debugFlagVal)
+}
+
 func InitAssetCmds(args []string) error {
-	if _, _, err := RootCmd.Traverse(args); err != nil && err != pflag.ErrHelp {
+	if _, _, err := rootCmd.Traverse(args); err != nil && err != pflag.ErrHelp {
 		return errors.Wrapf(err, "failed to parse arguments")
 	}
 
@@ -67,11 +72,11 @@ func InitAssetCmds(args []string) error {
 }
 
 func init() {
-	pluginapi.AddDebugPFlagPtr(RootCmd.PersistentFlags(), &DebugFlagVal)
-	pluginapi.AddProjectDirPFlagPtr(RootCmd.PersistentFlags(), &projectDirFlagVal)
-	pluginapi.AddConfigPFlagPtr(RootCmd.PersistentFlags(), &okgoConfigFileFlagVal)
-	pluginapi.AddGodelConfigPFlagPtr(RootCmd.PersistentFlags(), &godelConfigFileFlagVal)
-	pluginapi.AddAssetsPFlagPtr(RootCmd.PersistentFlags(), &assetsFlagVal)
+	pluginapi.AddDebugPFlagPtr(rootCmd.PersistentFlags(), &debugFlagVal)
+	pluginapi.AddProjectDirPFlagPtr(rootCmd.PersistentFlags(), &projectDirFlagVal)
+	pluginapi.AddConfigPFlagPtr(rootCmd.PersistentFlags(), &okgoConfigFileFlagVal)
+	pluginapi.AddGodelConfigPFlagPtr(rootCmd.PersistentFlags(), &godelConfigFileFlagVal)
+	pluginapi.AddAssetsPFlagPtr(rootCmd.PersistentFlags(), &assetsFlagVal)
 }
 
 func okgoProjectParamFromFlags() (okgo.ProjectParam, matcher.Matcher, error) {

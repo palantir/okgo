@@ -19,7 +19,6 @@ import (
 	"os"
 
 	"github.com/palantir/godel/framework/pluginapi/v2/pluginapi"
-	"github.com/palantir/pkg/cobracli"
 
 	"github.com/palantir/okgo/cmd"
 )
@@ -33,5 +32,5 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	os.Exit(cobracli.ExecuteWithDebugVarAndDefaultParams(cmd.RootCmd, &cmd.DebugFlagVal))
+	os.Exit(cmd.Execute())
 }
