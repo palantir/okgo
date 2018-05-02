@@ -104,9 +104,9 @@ func RunAssetCheckTest(t *testing.T,
 				projectDir, false, outputBuf)
 			defer runPluginCleanup()
 			if tc.WantError {
-				require.EqualError(t, err, "", "Case %d: %s", i, tc.Name)
+				require.EqualError(t, err, "", "Case %d: %s\nOutput: %s", i, tc.Name, outputBuf.String())
 			} else {
-				require.NoError(t, err, "Case %d: %s", i, tc.Name)
+				require.NoError(t, err, "Case %d: %s\nOutput: %s", i, tc.Name, outputBuf.String())
 			}
 			assert.Equal(t, tc.WantOutput, outputBuf.String(), "Case %d: %s", i, tc.Name)
 		}()
