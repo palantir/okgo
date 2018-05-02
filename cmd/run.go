@@ -29,7 +29,7 @@ var (
 )
 
 func init() {
-	RootCmd.AddCommand(runCheckCmd)
+	rootCmd.AddCommand(runCheckCmd)
 }
 
 func addRunSubcommands() {

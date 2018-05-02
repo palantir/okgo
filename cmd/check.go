@@ -118,5 +118,5 @@ func toCheckerTypes(in []string, factory okgo.CheckerFactory) ([]okgo.CheckerTyp
 func init() {
 	checkCmd.Flags().BoolVar(&parallelFlagVal, "parallel", true, "run checks in parallel")
 
-	RootCmd.AddCommand(checkCmd)
+	rootCmd.AddCommand(checkCmd)
 }
