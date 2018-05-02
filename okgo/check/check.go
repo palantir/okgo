@@ -186,25 +186,21 @@ func runCheck(checkerType okgo.CheckerType, outputPrefix string, checkerParam ok
 			line := scanner.Text()
 			issue := okgo.NewIssueFromJSON(line)
 
-			if issue.Path != "" {
-				// legitimate issue: determine whether or not it should be filtered out
-
+			if issue.Path != "" && checkerParam.Exclude != nil && checkerParam.Exclude.Match(issue.Path) {
 				// if path matches exclude, skip
-				if checkerParam.Exclude != nil && checkerParam.Exclude.Match(issue.Path) {
-					continue
-				}
+				continue
+			}
 
-				// if path matches filter, skip
-				filterOut := false
-				for _, filter := range checkerParam.Filters {
-					if filter.Filter(issue) {
-						filterOut = true
-						break
-					}
+			// if issue matches filter, skip
+			filterOut := false
+			for _, filter := range checkerParam.Filters {
+				if filter.Filter(issue) {
+					filterOut = true
+					break
 				}
-				if filterOut {
-					continue
-				}
+			}
+			if filterOut {
+				continue
 			}
 			fmt.Fprintf(stdout, "%s%s\n", outputPrefix, strings.Replace(issue.String(), "\n", "\n"+outputPrefix, -1))
 			result.producedOutput = true
