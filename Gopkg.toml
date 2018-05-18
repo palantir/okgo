@@ -30,8 +30,8 @@
   version = "1.3.0"
 
 [[constraint]]
-  branch = "master"
   name = "github.com/palantir/godel"
+  version = "2.0.0"
 
 [[constraint]]
   branch = "master"

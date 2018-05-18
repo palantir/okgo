@@ -79,7 +79,6 @@
   version = "1.3.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/palantir/godel"
   packages = [
     "framework/artifactresolver",
@@ -108,7 +107,8 @@
     "pkg/products",
     "pkg/versionedconfig"
   ]
-  revision = "6ef6fc2811e260af0641aae25a45881217b3cf3d"
+  revision = "179029568f2a6cb5a07d6fbbff5d210d8348ed65"
+  version = "v2.1.0"
 
 [[projects]]
   branch = "master"
@@ -192,6 +192,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "89132ba92be34a29996c1fb7333a5d306f749dd1ea86eff6027f25b6c9c9b582"
+  inputs-digest = "868e172f5d3e249a1136fa208f38c0c1d19fdc12676b80028260f8cc316300a4"
   solver-name = "gps-cdcl"
   solver-version = 1

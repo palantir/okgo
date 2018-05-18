@@ -58,10 +58,10 @@ on the project:
 
 ```
 ➜ ./godelw check
-[compiles]      Running compiles...
 [extimport]     Running extimport...
-[errcheck]      Running errcheck...
+[compiles]      Running compiles...
 [deadcode]      Running deadcode...
+[errcheck]      Running errcheck...
 [extimport]     Finished extimport
 [golint]        Running golint...
 [golint]        echo/echo.go:9:1: receiver name should not be an underscore, omit the name if it is unused
@@ -75,14 +75,14 @@ on the project:
 [novendor]      Running novendor...
 [novendor]      Finished novendor
 [outparamcheck] Running outparamcheck...
-[errcheck]      Finished errcheck
-[unconvert]     Running unconvert...
-[compiles]      Finished compiles
-[varcheck]      Running varcheck...
 [deadcode]      Finished deadcode
+[unconvert]     Running unconvert...
+[errcheck]      Finished errcheck
+[varcheck]      Running varcheck...
+[compiles]      Finished compiles
 [outparamcheck] Finished outparamcheck
-[varcheck]      Finished varcheck
 [unconvert]     Finished unconvert
+[varcheck]      Finished varcheck
 Check(s) produced output: [golint]
 ```
 
@@ -107,8 +107,8 @@ Run `./godelw check` again to verify that the issue has been resolved:
 
 ```
 ➜ ./godelw check
-[compiles]      Running compiles...
 [extimport]     Running extimport...
+[compiles]      Running compiles...
 [deadcode]      Running deadcode...
 [errcheck]      Running errcheck...
 [extimport]     Finished extimport
@@ -123,14 +123,14 @@ Run `./godelw check` again to verify that the issue has been resolved:
 [novendor]      Running novendor...
 [novendor]      Finished novendor
 [outparamcheck] Running outparamcheck...
-[errcheck]      Finished errcheck
-[unconvert]     Running unconvert...
 [compiles]      Finished compiles
-[varcheck]      Running varcheck...
+[unconvert]     Running unconvert...
 [deadcode]      Finished deadcode
+[varcheck]      Running varcheck...
+[errcheck]      Finished errcheck
 [outparamcheck] Finished outparamcheck
-[unconvert]     Finished unconvert
 [varcheck]      Finished varcheck
+[unconvert]     Finished unconvert
 ```
 
 Commit the changes to the repository:
@@ -138,7 +138,7 @@ Commit the changes to the repository:
 ```
 ➜ git add main.go echo
 ➜ git commit -m "Add echoer interface"
-[master 49a405e] Add echoer interface
+[master ff95dee] Add echoer interface
  3 files changed, 14 insertions(+), 2 deletions(-)
  create mode 100644 echo/echoer.go
 ```
@@ -176,8 +176,8 @@ Running `./godelw check` flags the following:
 
 ```
 ➜ ./godelw check
-[extimport]     Running extimport...
 [compiles]      Running compiles...
+[extimport]     Running extimport...
 [deadcode]      Running deadcode...
 [errcheck]      Running errcheck...
 [extimport]     Finished extimport
@@ -193,11 +193,11 @@ Running `./godelw check` flags the following:
 [novendor]      Running novendor...
 [novendor]      Finished novendor
 [outparamcheck] Running outparamcheck...
-[errcheck]      Finished errcheck
+[compiles]      Finished compiles
 [unconvert]     Running unconvert...
+[errcheck]      Finished errcheck
 [deadcode]      Finished deadcode
 [varcheck]      Running varcheck...
-[compiles]      Finished compiles
 [outparamcheck] Finished outparamcheck
 [unconvert]     Finished unconvert
 [varcheck]      Finished varcheck
@@ -254,10 +254,10 @@ reported:
 [outparamcheck] Running outparamcheck...
 [errcheck]      Finished errcheck
 [unconvert]     Running unconvert...
-[deadcode]      Finished deadcode
+[compiles]      Finished compiles
 [varcheck]      Running varcheck...
 [outparamcheck] Finished outparamcheck
-[compiles]      Finished compiles
+[deadcode]      Finished deadcode
 [unconvert]     Finished unconvert
 [varcheck]      Finished varcheck
 ```
@@ -313,9 +313,9 @@ Run `./godelw check` with the updated configuration to verify that the `golint` 
 ```
 ➜ ./godelw check
 [deadcode]      Running deadcode...
-[compiles]      Running compiles...
-[extimport]     Running extimport...
 [errcheck]      Running errcheck...
+[extimport]     Running extimport...
+[compiles]      Running compiles...
 [extimport]     Finished extimport
 [govet]         Running govet...
 [govet]         Finished govet
@@ -330,10 +330,10 @@ Run `./godelw check` with the updated configuration to verify that the `golint` 
 [unconvert]     Running unconvert...
 [errcheck]      Finished errcheck
 [varcheck]      Running varcheck...
-[compiles]      Finished compiles
 [outparamcheck] Finished outparamcheck
-[unconvert]     Finished unconvert
+[compiles]      Finished compiles
 [varcheck]      Finished varcheck
+[unconvert]     Finished unconvert
 ```
 
 Revert the local changes by running the following:
@@ -376,7 +376,7 @@ For example, `errcheck` can be invoked directly as follows:
 
 ```
 ➜ ./godelw run-check errcheck -- --help
-Usage of /root/.godel/assets/com.palantir.godel-okgo-asset-errcheck-errcheck-asset-1.0.0-rc2:
+Usage of /root/.godel/assets/com.palantir.godel-okgo-asset-errcheck-errcheck-asset-1.0.0:
   -abspath
     	print absolute paths to files
   -asserts
@@ -486,7 +486,7 @@ For example, we can add the [nobadfuncs check](https://github.com/palantir/go-no
     com.palantir.okgo:check-plugin:
       assets:
         - locator:
-            id: "com.palantir.godel-okgo-asset-nobadfuncs:nobadfuncs-asset:1.0.0-rc2"
+            id: "com.palantir.godel-okgo-asset-nobadfuncs:nobadfuncs-asset:1.0.0"
 exclude:
   names:
     - "\\\\..+"
@@ -499,8 +499,8 @@ This adds the asset, which makes it available as a check:
 
 ```
 ➜ ./godelw check nobadfuncs
-Getting package from https://palantir.bintray.com/releases/com/palantir/godel-okgo-asset-nobadfuncs/nobadfuncs-asset/1.0.0-rc2/nobadfuncs-asset-1.0.0-rc2-linux-amd64.tgz...
- 3.80 MiB / 3.80 MiB  100.00% 1s
+Getting package from https://palantir.bintray.com/releases/com/palantir/godel-okgo-asset-nobadfuncs/nobadfuncs-asset/1.0.0/nobadfuncs-asset-1.0.0-linux-amd64.tgz...
+ 0 B / 3.80 MiB    0.00% 137.91 KiB / 3.80 MiB    3.55% 5s 261.09 KiB / 3.80 MiB    6.71% 5s 503.75 KiB / 3.80 MiB   12.95% 4s 710.44 KiB / 3.80 MiB   18.26% 3s 710.44 KiB / 3.80 MiB   18.26% 3s 1.09 MiB / 3.80 MiB   28.69% 3s 1.92 MiB / 3.80 MiB   50.47% 1s 2.99 MiB / 3.80 MiB   78.79% 3.80 MiB / 3.80 MiB  100.00% 1s
 Running nobadfuncs...
 Finished nobadfuncs
 ```
