@@ -67,6 +67,7 @@ func AssetCheckerCreators(assetPaths ...string) ([]Creator, []okgo.ConfigUpgrade
 	var configUpgraders []okgo.ConfigUpgrader
 	checkerTypeToAssets := make(map[okgo.CheckerType][]string)
 	for _, currAssetPath := range assetPaths {
+		currAssetPath := currAssetPath
 		currChecker := assetChecker{
 			assetPath: currAssetPath,
 		}
