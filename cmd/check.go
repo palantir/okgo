@@ -40,7 +40,7 @@ var (
 			}
 			parallelism := 1
 			if parallelFlagVal {
-				parallelism = runtime.NumCPU()
+				parallelism = runtime.GOMAXPROCS(-1)
 			}
 			pkgs, err := pkgsInProject(projectDirFlagVal, godelExcludeMatcher)
 			if err != nil {
