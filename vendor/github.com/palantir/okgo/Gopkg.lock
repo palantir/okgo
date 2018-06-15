@@ -16,7 +16,7 @@
     "bzip2/internal/sais",
     "internal",
     "internal/errors",
-    "internal/prefix",
+    "internal/prefix"
   ]
   revision = "cc9eb1d7ad760af14e8f918698f745e80377af4f"
 
@@ -62,7 +62,7 @@
   packages = [
     "dirs",
     "errorstringer",
-    "gofiles",
+    "gofiles"
   ]
   revision = "b64318170fdef93b4462420e0badef8050dbb7ec"
 
@@ -104,26 +104,11 @@
     "framework/verifyorder",
     "godelgetter",
     "pkg/osarch",
-    "pkg/products/v2/products",
-    "pkg/versionedconfig",
+    "pkg/products",
+    "pkg/versionedconfig"
   ]
   revision = "179029568f2a6cb5a07d6fbbff5d210d8348ed65"
   version = "v2.1.0"
-
-[[projects]]
-  name = "github.com/palantir/okgo"
-  packages = [
-    "checker",
-    "checker/checkerfactory",
-    "cmd",
-    "okgo",
-    "okgo/check",
-    "okgo/config",
-    "okgo/config/internal/legacy",
-    "okgo/config/internal/v0",
-  ]
-  revision = "1ab0454cfd641effbfbb91ce1fa4205a9a09cbb7"
-  version = "v1.1.1"
 
 [[projects]]
   branch = "master"
@@ -132,7 +117,7 @@
     "cobracli",
     "matcher",
     "pkgpath",
-    "specdir",
+    "specdir"
   ]
   revision = "23395ebeee5df1083443a6261e5f674a76af91b6"
 
@@ -164,7 +149,7 @@
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
-    "require",
+    "require"
   ]
   revision = "12b6f73e6084dad08a7c6e575284b177ecafbc71"
   version = "v1.2.1"
@@ -181,7 +166,7 @@
     ".",
     "internal/hash",
     "internal/xlog",
-    "lzma",
+    "lzma"
   ]
   revision = "0c6b41e72360850ca4f98dc341fd999726ea007f"
   version = "v0.5.4"
@@ -207,6 +192,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "cdfdf9413f7fab88f249b0319288c98ba19ae03368cee4da7fde38029fcc126c"
+  inputs-digest = "868e172f5d3e249a1136fa208f38c0c1d19fdc12676b80028260f8cc316300a4"
   solver-name = "gps-cdcl"
   solver-version = 1
