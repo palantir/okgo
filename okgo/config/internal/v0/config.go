@@ -26,14 +26,6 @@ import (
 )
 
 type ProjectConfig struct {
-	// ReleaseTag specifies the newest Go release build tag supported by the codebase being checked. If this value
-	// is not specified, it defaults to the Go release that was used to build the check tool. If the code being
-	// checked is known to use a version of Go that is earlier than the version of Go used to build the check tool
-	// and the codebase being checked contains build tags for the newer Go version, this value should be explicitly
-	// set. For example, if the check tool was compiled using Go 1.8 but the codebase being checked uses Go 1.7 and
-	// contains files that use the "// +build go1.8" build tag, then this should be set to "go1.7".
-	ReleaseTag string `yaml:"release-tag,omitempty"`
-
 	// Checks specifies the configuration used by the checks. The key is the name of the check and the value is the
 	// custom configuration for that check.
 	Checks map[okgo.CheckerType]CheckerConfig `yaml:"checks,omitempty"`
