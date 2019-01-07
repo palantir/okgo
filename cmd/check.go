@@ -19,6 +19,7 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/palantir/pkg/matcher"
 	"github.com/palantir/pkg/pkgpath"
@@ -84,6 +85,11 @@ func pkgsInProject(projectDir string, exclude matcher.Matcher) ([]string, error)
 	if relPathPrefix != "" {
 		for i, pkgPath := range pkgPaths {
 			pkgPaths[i] = "./" + path.Join(relPathPrefix, pkgPath)
+		}
+	}
+	for i := range pkgPaths {
+		if strings.HasPrefix(pkgPaths[i], "./..") {
+			pkgPaths[i] = strings.TrimPrefix(pkgPaths[i], "./")
 		}
 	}
 	return pkgPaths, nil
