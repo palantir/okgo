@@ -1,5 +1,0 @@
-* [Home](https://github.com/palantir/amalgomate/wiki)
-* [Name](https://github.com/palantir/amalgomate/wiki/Name)
-* [Motivation](https://github.com/palantir/amalgomate/wiki/Motivation)
-* [Difficulty](https://github.com/palantir/amalgomate/wiki/Difficulty)
-* [Solution](https://github.com/palantir/amalgomate/wiki/Solution)
