@@ -135,6 +135,23 @@
   version = "v2.11.0"
 
 [[projects]]
+  digest = "1:a7e8d749cd94ab567773b7ec0304384f8c481b2caea17055221310dc8ff4d578"
+  name = "github.com/palantir/okgo"
+  packages = [
+    "checker",
+    "checker/checkerfactory",
+    "cmd",
+    "okgo",
+    "okgo/check",
+    "okgo/config",
+    "okgo/config/internal/legacy",
+    "okgo/config/internal/v0",
+  ]
+  pruneopts = "UT"
+  revision = "1d1202b873a020fb35f7089268b80c29a42cdcdf"
+  version = "v1.5.0"
+
+[[projects]]
   digest = "1:3daca7f2d75df7e74dce40464a5cea6e14989be34b4364cdbc38c12ea2e5d34c"
   name = "github.com/palantir/pkg"
   packages = [
@@ -250,6 +267,14 @@
     "github.com/palantir/godel/framework/verifyorder",
     "github.com/palantir/godel/pkg/products/v2/products",
     "github.com/palantir/godel/pkg/versionedconfig",
+    "github.com/palantir/okgo/checker",
+    "github.com/palantir/okgo/checker/checkerfactory",
+    "github.com/palantir/okgo/cmd",
+    "github.com/palantir/okgo/okgo",
+    "github.com/palantir/okgo/okgo/check",
+    "github.com/palantir/okgo/okgo/config",
+    "github.com/palantir/okgo/okgo/config/internal/legacy",
+    "github.com/palantir/okgo/okgo/config/internal/v0",
     "github.com/palantir/pkg/cobracli",
     "github.com/palantir/pkg/matcher",
     "github.com/palantir/pkg/pkgpath",
