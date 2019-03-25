@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"github.com/palantir/godel/framework/godellauncher"
 	"github.com/palantir/godel/framework/pluginapi/v2/pluginapi"
 	"github.com/palantir/godel/framework/verifyorder"
 )
@@ -37,6 +38,13 @@ var (
 			checkCmd.Short,
 			pluginapi.TaskInfoCommand(checkCmd.Name()),
 			pluginapi.TaskInfoVerifyOptions(
+				pluginapi.VerifyOptionsTaskFlags(
+					pluginapi.NewVerifyFlag(
+						"parallel",
+						"specifies whether or not checks are run in parallel (only used if 'check' task is run)",
+						godellauncher.BoolFlag,
+					),
+				),
 				pluginapi.VerifyOptionsOrdering(intPtr(verifyorder.Check)),
 			),
 		),
