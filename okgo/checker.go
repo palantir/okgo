@@ -114,5 +114,5 @@ func WriteErrorAsIssue(err error, stdout io.Writer) {
 		// Issue must support JSON-serialization
 		panic(errors.Wrapf(err, "failed to JSON-serialize issue %+v", issue))
 	}
-	fmt.Fprintln(stdout, string(bytes))
+	_, _ = fmt.Fprintln(stdout, string(bytes))
 }

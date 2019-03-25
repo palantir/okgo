@@ -140,7 +140,7 @@ func RunCommandAndStreamOutput(cmd *exec.Cmd, lineParser func(line string) okgo.
 				okgo.WriteErrorAsIssue(errors.Wrapf(err, "failed to marshal issue %+v as JSON", issue), stdout)
 				continue
 			}
-			fmt.Fprintln(stdout, string(issueJSONBytes))
+			_, _ = fmt.Fprintln(stdout, string(issueJSONBytes))
 		}
 		if err := scanner.Err(); err != nil {
 			okgo.WriteErrorAsIssue(errors.Wrapf(err, "scanner error encountered while reading output"), stdout)

@@ -79,7 +79,7 @@ func Run(projectParam okgo.ProjectParam, checkersToRun []okgo.CheckerType, pkgPa
 	}
 	if len(checksWithFailures) > 0 {
 		sort.Strings(checksWithFailures)
-		fmt.Fprintln(stdout, "Check(s) produced output:", checksWithFailures)
+		_, _ = fmt.Fprintln(stdout, "Check(s) produced output:", checksWithFailures)
 		// return empty failure to indicate non-zero exit code
 		return fmt.Errorf("")
 	}
@@ -145,7 +145,7 @@ func singleCheckWorker(pkgPaths []string, projectDir string, maxTypeLen int, mul
 
 		checkerType, err := checkerParam.Checker.Type()
 		if err != nil {
-			fmt.Fprintf(stdout, "failed to determine type for Checker: %v", err)
+			_, _ = fmt.Fprintf(stdout, "failed to determine type for Checker: %v", err)
 			continue
 		}
 		prefixWithPadding := ""
@@ -157,7 +157,7 @@ func singleCheckWorker(pkgPaths []string, projectDir string, maxTypeLen int, mul
 }
 
 func runCheck(checkerType okgo.CheckerType, outputPrefix string, checkerParam okgo.CheckerParam, pkgPaths []string, projectDir string, stdout io.Writer) checkResult {
-	fmt.Fprintf(stdout, "%sRunning %s...\n", outputPrefix, checkerType)
+	_, _ = fmt.Fprintf(stdout, "%sRunning %s...\n", outputPrefix, checkerType)
 
 	result := checkResult{
 		checkerType: checkerType,
@@ -173,7 +173,7 @@ func runCheck(checkerType okgo.CheckerType, outputPrefix string, checkerParam ok
 
 	pipeR, pipeW, err := os.Pipe()
 	if err != nil {
-		fmt.Fprintf(stdout, "%s%s\n", outputPrefix, "failed to create pipe")
+		_, _ = fmt.Fprintf(stdout, "%s%s\n", outputPrefix, "failed to create pipe")
 		result.producedOutput = true
 		return result
 	}
@@ -202,11 +202,11 @@ func runCheck(checkerType okgo.CheckerType, outputPrefix string, checkerParam ok
 			if filterOut {
 				continue
 			}
-			fmt.Fprintf(stdout, "%s%s\n", outputPrefix, strings.Replace(issue.String(), "\n", "\n"+outputPrefix, -1))
+			_, _ = fmt.Fprintf(stdout, "%s%s\n", outputPrefix, strings.Replace(issue.String(), "\n", "\n"+outputPrefix, -1))
 			result.producedOutput = true
 		}
 		if err := scanner.Err(); err != nil {
-			fmt.Fprintf(stdout, "%s%s\n", outputPrefix, "scanner error encountered while reading output")
+			_, _ = fmt.Fprintf(stdout, "%s%s\n", outputPrefix, "scanner error encountered while reading output")
 			result.producedOutput = true
 		}
 		done <- true
@@ -217,7 +217,7 @@ func runCheck(checkerType okgo.CheckerType, outputPrefix string, checkerParam ok
 
 	if err := pipeW.Close(); err != nil {
 		<-done
-		fmt.Fprintf(stdout, "%s%s\n", outputPrefix, "failed to close pipe writer")
+		_, _ = fmt.Fprintf(stdout, "%s%s\n", outputPrefix, "failed to close pipe writer")
 		result.producedOutput = true
 		return result
 	}
@@ -225,7 +225,7 @@ func runCheck(checkerType okgo.CheckerType, outputPrefix string, checkerParam ok
 	// wait until all output has been read
 	<-done
 
-	fmt.Fprintf(stdout, "%sFinished %s\n", outputPrefix, checkerType)
+	_, _ = fmt.Fprintf(stdout, "%sFinished %s\n", outputPrefix, checkerType)
 
 	return result
 }

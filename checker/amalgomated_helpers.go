@@ -138,7 +138,7 @@ func AmalgomatedRunRawCheck(amalgomatedCmdName string, args []string, stdout io.
 	cmd.Stderr = stdout
 	if err := cmd.Run(); err != nil {
 		if _, ok := err.(*exec.ExitError); !ok {
-			fmt.Fprintf(stdout, "command %v failed with error %v\n", cmd.Args, err)
+			_, _ = fmt.Fprintf(stdout, "command %v failed with error %v\n", cmd.Args, err)
 		}
 	}
 }
