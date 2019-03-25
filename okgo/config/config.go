@@ -22,7 +22,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/palantir/okgo/okgo"
-	"github.com/palantir/okgo/okgo/config/internal/v0"
+	v0 "github.com/palantir/okgo/okgo/config/internal/v0"
 )
 
 type ProjectConfig v0.ProjectConfig

@@ -20,7 +20,7 @@ import (
 
 	"github.com/palantir/okgo/okgo"
 	"github.com/palantir/okgo/okgo/config/internal/legacy"
-	"github.com/palantir/okgo/okgo/config/internal/v0"
+	v0 "github.com/palantir/okgo/okgo/config/internal/v0"
 )
 
 func UpgradeConfig(cfgBytes []byte, factory okgo.CheckerFactory) ([]byte, error) {
