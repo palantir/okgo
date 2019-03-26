@@ -94,12 +94,12 @@ func okgoProjectParamFromVals(okgoConfigFile, godelConfigFile string, factory ok
 	}
 	var godelExcludes matcher.Matcher
 	if godelConfigFile != "" {
-		cfg, err := godelconfig.ReadGodelConfigFromFile(godelConfigFile)
+		excludes, err := godelconfig.ReadGodelConfigExcludesFromFile(godelConfigFile)
 		if err != nil {
 			return okgo.ProjectParam{}, nil, err
 		}
-		godelExcludes = cfg.Exclude.Matcher()
-		okgoCfg.Exclude.Add(cfg.Exclude)
+		godelExcludes = excludes.Matcher()
+		okgoCfg.Exclude.Add(excludes)
 	}
 	projectParam, err := okgoCfg.ToParam(factory)
 	if err != nil {
