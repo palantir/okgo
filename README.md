@@ -1,3 +1,7 @@
+<p align="right">
+<a href="https://autorelease.general.dmz.palantir.tech/palantir/okgo"><img src="https://img.shields.io/badge/Perform%20an-Autorelease-success.svg" alt="Autorelease"></a>
+</p>
+
 okgo
 ====
 okgo is a gödel plugin that coordinates and runs Go checks. Individual checks are written as assets.
