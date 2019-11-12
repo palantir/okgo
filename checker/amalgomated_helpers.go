@@ -20,7 +20,6 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/kardianos/osext"
 	"github.com/palantir/amalgomate/amalgomated"
 	"github.com/palantir/godel/v2/framework/pluginapi"
 	"github.com/pkg/errors"
@@ -114,7 +113,7 @@ func (c *amalgomatedChecker) RunCheckCmd(args []string, stdout io.Writer) {
 }
 
 func AmalgomatedCheckCmd(amalgomatedCmdName string, args []string, stdout io.Writer) (*exec.Cmd, string) {
-	pathToSelf, err := osext.Executable()
+	pathToSelf, err := os.Executable()
 	if err != nil {
 		okgo.WriteErrorAsIssue(errors.Wrapf(err, "failed to determine path to executable"), stdout)
 		return nil, ""
