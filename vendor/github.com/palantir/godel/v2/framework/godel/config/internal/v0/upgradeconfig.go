@@ -12,18 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cmd
+package v0
 
 import (
-	"github.com/palantir/godel/v2/framework/pluginapi"
-
-	"github.com/palantir/okgo/okgo/config"
+	"github.com/pkg/errors"
+	"gopkg.in/yaml.v2"
 )
 
-var upgradeConfigCmd = pluginapi.CobraUpgradeConfigCmd(func(cfgBytes []byte) ([]byte, error) {
-	return config.UpgradeConfig(cfgBytes, cliCheckerFactory)
-})
-
-func init() {
-	rootCmd.AddCommand(upgradeConfigCmd)
+func UpgradeConfig(cfgBytes []byte) ([]byte, error) {
+	var cfg GodelConfig
+	if err := yaml.Unmarshal(cfgBytes, &cfg); err != nil {
+		return nil, errors.Wrapf(err, "failed to unmarshal godel v0 configuration")
+	}
+	return cfgBytes, nil
 }

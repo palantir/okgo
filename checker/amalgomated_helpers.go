@@ -22,7 +22,7 @@ import (
 
 	"github.com/kardianos/osext"
 	"github.com/palantir/amalgomate/amalgomated"
-	"github.com/palantir/godel/framework/pluginapi"
+	"github.com/palantir/godel/v2/framework/pluginapi"
 	"github.com/pkg/errors"
 
 	"github.com/palantir/okgo/okgo"
