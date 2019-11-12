@@ -15,30 +15,22 @@
 package config
 
 import (
-	"github.com/palantir/godel/v2/pkg/versionedconfig"
 	"github.com/pkg/errors"
 
-	"github.com/palantir/okgo/okgo"
-	"github.com/palantir/okgo/okgo/config/internal/legacy"
-	v0 "github.com/palantir/okgo/okgo/config/internal/v0"
+	v0 "github.com/palantir/godel/v2/framework/godel/config/internal/v0"
+	"github.com/palantir/godel/v2/pkg/versionedconfig"
 )
 
-func UpgradeConfig(cfgBytes []byte, factory okgo.CheckerFactory) ([]byte, error) {
-	if versionedconfig.IsLegacyConfig(cfgBytes) {
-		v0Bytes, err := legacy.UpgradeConfig(cfgBytes, factory)
-		if err != nil {
-			return nil, err
-		}
-		cfgBytes = v0Bytes
-	}
-
+func UpgradeConfig(cfgBytes []byte) ([]byte, error) {
+	// legacy configuration is fully compatible with 2.0 configuration so no need to migrate. Configuration for godel is
+	// also special because it has already been loaded by the time the program is run.
 	version, err := versionedconfig.ConfigVersion(cfgBytes)
 	if err != nil {
 		return nil, err
 	}
 	switch version {
 	case "", "0":
-		return v0.UpgradeConfig(cfgBytes, factory)
+		return v0.UpgradeConfig(cfgBytes)
 	default:
 		return nil, errors.Errorf("unsupported version: %s", version)
 	}

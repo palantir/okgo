@@ -17,8 +17,8 @@ package cmd
 import (
 	"io/ioutil"
 
-	godelconfig "github.com/palantir/godel/framework/godel/config"
-	"github.com/palantir/godel/framework/pluginapi"
+	godelconfig "github.com/palantir/godel/v2/framework/godel/config"
+	"github.com/palantir/godel/v2/framework/pluginapi"
 	"github.com/palantir/pkg/cobracli"
 	"github.com/palantir/pkg/matcher"
 	"github.com/pkg/errors"

@@ -12,18 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cmd
+package artifactresolver
 
 import (
-	"github.com/palantir/godel/v2/framework/pluginapi"
+	"fmt"
 
-	"github.com/palantir/okgo/okgo/config"
+	"github.com/palantir/godel/v2/pkg/osarch"
 )
 
-var upgradeConfigCmd = pluginapi.CobraUpgradeConfigCmd(func(cfgBytes []byte) ([]byte, error) {
-	return config.UpgradeConfig(cfgBytes, cliCheckerFactory)
-})
+type LocatorWithResolverParam struct {
+	LocatorWithChecksums LocatorParam
+	Resolver             Resolver
+}
 
-func init() {
-	rootCmd.AddCommand(upgradeConfigCmd)
+type LocatorParam struct {
+	Locator
+	Checksums map[osarch.OSArch]string
+}
+
+type Locator struct {
+	Group   string
+	Product string
+	Version string
+}
+
+func (l Locator) String() string {
+	return fmt.Sprintf("%s:%s", l.GroupAndProductString(), l.Version)
+}
+
+func (l Locator) GroupAndProductString() string {
+	return fmt.Sprintf("%s:%s", l.Group, l.Product)
 }
