@@ -3,7 +3,6 @@ module github.com/palantir/okgo
 go 1.13
 
 require (
-	github.com/kardianos/osext v0.0.0-20170510131534-ae77be60afb1
 	github.com/nmiyake/pkg v0.0.0-20181213185804-ae0375219445
 	github.com/palantir/amalgomate v1.6.0
 	github.com/palantir/godel/v2 v2.22.0
