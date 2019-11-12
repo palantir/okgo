@@ -1,4 +1,4 @@
-# github.com/davecgh/go-spew v1.1.0
+# github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
 # github.com/dsnet/compress v0.0.0-20171208185109-cc9eb1d7ad76
 github.com/dsnet/compress
@@ -19,13 +19,13 @@ github.com/kardianos/osext
 github.com/mattn/go-runewidth
 # github.com/mholt/archiver v2.0.0+incompatible
 github.com/mholt/archiver
-# github.com/nmiyake/pkg v0.0.0-20170627000939-b64318170fde
+# github.com/nmiyake/pkg v0.0.0-20181213185804-ae0375219445
 github.com/nmiyake/pkg/dirs
 github.com/nmiyake/pkg/errorstringer
 github.com/nmiyake/pkg/gofiles
 # github.com/nwaples/rardecode v0.0.0-20171029023500-e06696f847ae
 github.com/nwaples/rardecode
-# github.com/palantir/amalgomate v1.5.0
+# github.com/palantir/amalgomate v1.6.0
 github.com/palantir/amalgomate/amalgomated
 # github.com/palantir/godel/v2 v2.22.0
 github.com/palantir/godel/v2/framework/artifactresolver
@@ -53,20 +53,20 @@ github.com/palantir/godel/v2/godelgetter
 github.com/palantir/godel/v2/pkg/osarch
 github.com/palantir/godel/v2/pkg/products
 github.com/palantir/godel/v2/pkg/versionedconfig
-# github.com/palantir/pkg v0.0.0-20190110173045-b2b34217111b
+# github.com/palantir/pkg v0.0.0-20191028175011-d684c9609178
 github.com/palantir/pkg/cobracli
 github.com/palantir/pkg/matcher
 github.com/palantir/pkg/pkgpath
 github.com/palantir/pkg/specdir
-# github.com/pkg/errors v0.8.0
+# github.com/pkg/errors v0.8.1
 github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
-# github.com/spf13/cobra v0.0.2
+# github.com/spf13/cobra v0.0.5
 github.com/spf13/cobra
-# github.com/spf13/pflag v1.0.0
+# github.com/spf13/pflag v1.0.5
 github.com/spf13/pflag
-# github.com/stretchr/testify v1.2.1
+# github.com/stretchr/testify v1.4.0
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/require
 # github.com/termie/go-shutil v0.0.0-20140729215957-bcacb06fecae
@@ -80,5 +80,5 @@ github.com/ulikunitz/xz/lzma
 golang.org/x/sys/unix
 # gopkg.in/cheggaaa/pb.v1 v1.0.22
 gopkg.in/cheggaaa/pb.v1
-# gopkg.in/yaml.v2 v2.2.0
+# gopkg.in/yaml.v2 v2.2.5
 gopkg.in/yaml.v2
