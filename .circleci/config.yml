@@ -8,7 +8,7 @@ owner-repo: &owner-repo
 excutor: &executor
   executor:
     name: go/darwin-linux-no-cgo
-    version: 1.14.4-t52
+    version: 1.14.7-t55
     <<: *owner-repo
 
 version: 2.1
