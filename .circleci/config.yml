@@ -5,7 +5,7 @@
 owner-repo: &owner-repo
   owner-repo: palantir/okgo
 
-excutor: &executor
+executor: &executor
   executor:
     name: go/golang-docker
     go-docker-version: 1.16-java-11-t71
