@@ -38,18 +38,3 @@ workflows:
           name: dist
           <<: *executor
           <<: *all-tags-filter
-      - godel/bintray-publish:
-          name: publish
-          <<: *executor
-          bintray-subject: palantir
-          bintray-repo: releases
-          bintray-product: okgo
-          requires:
-            - verify
-            - test
-            - dist
-          filters:
-            tags:
-              only: /^v?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?(-alpha[0-9]+)?$/
-            branches:
-              ignore: /.*/
