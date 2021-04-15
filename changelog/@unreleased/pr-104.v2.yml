@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: Issues reported by checks that have paths that are matched by the "exclude" directive (either in global godel configuration or in check-plugin configuration) are no longer ignored.
+  links:
+  - https://github.com/palantir/okgo/pull/104
