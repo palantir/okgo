@@ -1,0 +1,7 @@
+type: improvement
+improvement:
+  description: |-
+    Restore previous behavior (behavior of v1.10.0 and earlier) of skipping issues that occur
+    in files that match exclude criteria.
+  links:
+  - https://github.com/palantir/okgo/pull/109
