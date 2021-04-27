@@ -17,10 +17,9 @@ package checkerfactory
 import (
 	"sort"
 
-	"github.com/pkg/errors"
-
 	"github.com/palantir/okgo/checker"
 	"github.com/palantir/okgo/okgo"
+	"github.com/pkg/errors"
 )
 
 type checkerFactoryImpl struct {

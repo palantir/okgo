@@ -21,13 +21,12 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/palantir/okgo/okgo"
+	"github.com/palantir/okgo/okgo/check"
 	"github.com/palantir/pkg/matcher"
 	"github.com/palantir/pkg/pkgpath"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-
-	"github.com/palantir/okgo/okgo"
-	"github.com/palantir/okgo/okgo/check"
 )
 
 var (

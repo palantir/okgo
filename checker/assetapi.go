@@ -19,10 +19,9 @@ import (
 	"fmt"
 
 	"github.com/palantir/godel/v2/framework/pluginapi"
+	"github.com/palantir/okgo/okgo"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-
-	"github.com/palantir/okgo/okgo"
 )
 
 func AssetRootCmd(creator Creator, upgradeConfigFn pluginapi.UpgradeConfigFn, short string) *cobra.Command {

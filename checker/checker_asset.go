@@ -22,9 +22,8 @@ import (
 	"strings"
 
 	"github.com/palantir/godel/v2/framework/pluginapi"
-	"github.com/pkg/errors"
-
 	"github.com/palantir/okgo/okgo"
+	"github.com/pkg/errors"
 )
 
 type assetChecker struct {

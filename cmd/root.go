@@ -19,17 +19,16 @@ import (
 
 	godelconfig "github.com/palantir/godel/v2/framework/godel/config"
 	"github.com/palantir/godel/v2/framework/pluginapi"
+	"github.com/palantir/okgo/checker"
+	"github.com/palantir/okgo/checker/checkerfactory"
+	"github.com/palantir/okgo/okgo"
+	"github.com/palantir/okgo/okgo/config"
 	"github.com/palantir/pkg/cobracli"
 	"github.com/palantir/pkg/matcher"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"gopkg.in/yaml.v2"
-
-	"github.com/palantir/okgo/checker"
-	"github.com/palantir/okgo/checker/checkerfactory"
-	"github.com/palantir/okgo/okgo"
-	"github.com/palantir/okgo/okgo/config"
 )
 
 var (

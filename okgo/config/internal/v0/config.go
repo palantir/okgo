@@ -18,11 +18,10 @@ import (
 	"bytes"
 	"sort"
 
+	"github.com/palantir/okgo/okgo"
 	"github.com/palantir/pkg/matcher"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
-
-	"github.com/palantir/okgo/okgo"
 )
 
 type ProjectConfig struct {
