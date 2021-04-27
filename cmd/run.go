@@ -15,10 +15,9 @@
 package cmd
 
 import (
+	"github.com/palantir/okgo/okgo"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-
-	"github.com/palantir/okgo/okgo"
 )
 
 var (
