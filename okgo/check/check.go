@@ -186,6 +186,11 @@ func runCheck(checkerType okgo.CheckerType, outputPrefix string, checkerParam ok
 			line := scanner.Text()
 			issue := okgo.NewIssueFromJSON(line)
 
+			if issue.Path != "" && checkerParam.Exclude != nil && checkerParam.Exclude.Match(issue.Path) {
+				// if path matches exclude, skip
+				continue
+			}
+
 			// if issue matches filter, skip
 			filterOut := false
 			for _, filter := range checkerParam.Filters {
