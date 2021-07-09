@@ -97,7 +97,7 @@ github.com/rogpeppe/go-internal/internal/syscall/windows
 github.com/rogpeppe/go-internal/internal/syscall/windows/sysdll
 github.com/rogpeppe/go-internal/lockedfile
 github.com/rogpeppe/go-internal/lockedfile/internal/filelock
-# github.com/spf13/cobra v1.2.0
+# github.com/spf13/cobra v1.2.1
 github.com/spf13/cobra
 # github.com/spf13/pflag v1.0.5
 github.com/spf13/pflag
