@@ -53,7 +53,7 @@ github.com/nwaples/rardecode
 # github.com/palantir/amalgomate v1.7.0
 ## explicit
 github.com/palantir/amalgomate/amalgomated
-# github.com/palantir/godel/v2 v2.40.0
+# github.com/palantir/godel/v2 v2.41.0
 ## explicit
 github.com/palantir/godel/v2/framework/artifactresolver
 github.com/palantir/godel/v2/framework/builtintasks
