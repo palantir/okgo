@@ -14,11 +14,14 @@ homepath: &homepath
 gopath: &gopath
   gopath: /home/circleci/go
 
+working_directory: &working_directory
+    working_directory: /home/circleci/go/src/github.com/palantir/okgo
+
 executors:
   circleci-go:
     docker:
       - image: cimg/go:1.16-browsers
-    working_directory: /home/circleci/go/src/github.com/palantir/okgo
+    <<: *working_directory
 
 all-tags-filter: &all-tags-filter
   filters:
