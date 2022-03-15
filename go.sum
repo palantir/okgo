@@ -362,8 +362,9 @@ github.com/palantir/godel/v2 v2.50.0 h1:0pTbCm7IWvuzgxngbgOVoJRg8EsvfdkpfTKcdS3p
 github.com/palantir/godel/v2 v2.50.0/go.mod h1:smmCKpSWBQwaPv+iWyDy47x8y69M7+AvFHoe9JfK1vg=
 github.com/palantir/pkg v1.0.1 h1:ZbGUcc14N7xcZSY9cehQoiHHTm/BAZO5RJdlsNEtSbk=
 github.com/palantir/pkg v1.0.1/go.mod h1:Eo6Jl0UXfT+65sLXJOcU9duu0WPvKsWFXCb0dE5VWZs=
-github.com/palantir/pkg/cobracli v1.0.1 h1:RLAL+bWRcFVqX1XHDQZp6V2vZYN483U0HE9dhp2W+WQ=
 github.com/palantir/pkg/cobracli v1.0.1/go.mod h1:UfYLriXzhyx7a3r+3UTD+kbX+xASjr9kSK05fC85NyI=
+github.com/palantir/pkg/cobracli v1.1.0 h1:dfBDc+FSrBnkNv96Ew9ROeks5JI4NxwD//Raas+zd6Y=
+github.com/palantir/pkg/cobracli v1.1.0/go.mod h1:eaiBi7zgXa8AXlxH+hV4TNQlXbYY36xSFE9DdArG1MM=
 github.com/palantir/pkg/gittest v1.0.0/go.mod h1:M49S4TsX5sh7lYJmOF+pFzcB4fJNOylzN8tOdpSq958=
 github.com/palantir/pkg/gittest v1.0.1 h1:SMGj38NLGzEpW1LFfGAitWprywHorJTmfOpJS/9kv/Y=
 github.com/palantir/pkg/gittest v1.0.1/go.mod h1:Rhmt7mtHdp+6c3gWZDAsXTBk5AUZwnfahsw5w6WWrbc=
@@ -450,8 +451,9 @@ github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UV
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
 github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5cxcmMvtA=
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
-github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5CcY=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
+github.com/stretchr/testify v1.7.1 h1:5TQK59W5E3v0r2duFAb7P95B6hEeOyEnHRa8MjYSMTY=
+github.com/stretchr/testify v1.7.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/subosito/gotenv v1.2.0/go.mod h1:N0PQaV/YGNqwC0u51sEeR/aUtSLEXKX9iv69rRypqCw=
 github.com/termie/go-shutil v0.0.0-20140729215957-bcacb06fecae/go.mod h1:quDq6Se6jlGwiIKia/itDZxqC5rj6/8OdFyMMAwTxCs=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
