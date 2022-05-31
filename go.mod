@@ -6,7 +6,7 @@ require (
 	github.com/nmiyake/pkg/dirs v1.1.0
 	github.com/nmiyake/pkg/gofiles v1.2.0
 	github.com/palantir/amalgomate v1.7.0
-	github.com/palantir/godel/v2 v2.57.0
+	github.com/palantir/godel/v2 v2.58.0
 	github.com/palantir/pkg/cobracli v1.1.0
 	github.com/palantir/pkg/matcher v1.0.1
 	github.com/palantir/pkg/pkgpath v1.0.1
@@ -49,5 +49,5 @@ require (
 	golang.org/x/tools v0.1.5 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
