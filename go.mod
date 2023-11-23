@@ -5,8 +5,8 @@ go 1.21
 require (
 	github.com/nmiyake/pkg/dirs v1.1.0
 	github.com/nmiyake/pkg/gofiles v1.2.0
-	github.com/palantir/amalgomate v1.34.0
-	github.com/palantir/godel/v2 v2.94.0
+	github.com/palantir/amalgomate v1.35.0
+	github.com/palantir/godel/v2 v2.95.0
 	github.com/palantir/pkg/cobracli v1.2.0
 	github.com/palantir/pkg/matcher v1.2.0
 	github.com/palantir/pkg/pkgpath v1.2.0
