@@ -21,6 +21,8 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/palantir/okgo/okgo"
 	"github.com/pkg/errors"
@@ -51,7 +53,35 @@ func Run(projectParam okgo.ProjectParam, checkersToRun []okgo.CheckerType, pkgPa
 	if err := sortCheckers(checkers); err != nil {
 		return err
 	}
+	return runNew(checkers, pkgPaths, projectDir, parallelism)
+}
 
+func runNew(
+	checkers []okgo.CheckerParam,
+	pkgPaths []string,
+	projectDir string,
+	parallelism int) error {
+
+	var wg sync.WaitGroup
+
+	fmt.Println("RUN NEW")
+	for _, checker := range checkers {
+		wg.Add(1)
+		toRun := checker
+		go func() {
+			defer wg.Done()
+			oneRun(pkgPaths, projectDir, toRun)
+		}()
+	}
+	wg.Wait()
+	return nil
+}
+
+func runOld(
+	checkers []okgo.CheckerParam,
+	pkgPaths []string,
+	projectDir string,
+	parallelism int) error {
 	jobs := make(chan okgo.CheckerParam)
 	results := make(chan checkResult, len(checkers))
 
@@ -61,7 +91,7 @@ func Run(projectParam okgo.ProjectParam, checkersToRun []okgo.CheckerType, pkgPa
 	}
 
 	for w := 0; w < parallelism; w++ {
-		go singleCheckWorker(pkgPaths, projectDir, maxTypeLen, parallelism > 1, jobs, results, stdout)
+		go singleCheckWorker(pkgPaths, projectDir, 10, parallelism > 1, jobs, results, os.Stdout)
 	}
 
 	for _, checker := range checkers {
@@ -78,7 +108,7 @@ func Run(projectParam okgo.ProjectParam, checkersToRun []okgo.CheckerType, pkgPa
 	}
 	if len(checksWithFailures) > 0 {
 		sort.Strings(checksWithFailures)
-		_, _ = fmt.Fprintln(stdout, "Check(s) produced output:", checksWithFailures)
+		_, _ = fmt.Fprintln(os.Stdout, "Check(s) produced output:", checksWithFailures)
 		// return empty failure to indicate non-zero exit code
 		return fmt.Errorf("")
 	}
@@ -151,11 +181,71 @@ func singleCheckWorker(pkgPaths []string, projectDir string, maxTypeLen int, mul
 		if multipleWorkers {
 			prefixWithPadding = fmt.Sprintf("[%s] ", checkerType) + strings.Repeat(" ", maxTypeLen-len(checkerType))
 		}
-		results <- runCheck(checkerType, prefixWithPadding, checkerParam, pkgPaths, projectDir, stdout)
+		results <- runCheck3(checkerType, prefixWithPadding, checkerParam, pkgPaths, projectDir, stdout)
 	}
 }
 
-func runCheck(checkerType okgo.CheckerType, outputPrefix string, checkerParam okgo.CheckerParam, pkgPaths []string, projectDir string, stdout io.Writer) checkResult {
+func oneRun(
+	pkgPaths []string,
+	projectDir string,
+	checkerParam okgo.CheckerParam) {
+	checkerType, _ := checkerParam.Checker.Type()
+	var filteredPkgPaths []string
+	for _, pkgPath := range pkgPaths {
+		if checkerParam.Exclude != nil && checkerParam.Exclude.Match(pkgPath) {
+			// skip excludes
+			continue
+		}
+		filteredPkgPaths = append(filteredPkgPaths, pkgPath)
+	}
+	fmt.Println(fmt.Sprintf("vMIDDLE: %s %s", checkerType, time.Now().String()))
+	filteredPkgPaths = []string{"./cmd"}
+	fmt.Println(filteredPkgPaths)
+	checkerParam.Checker.Check(filteredPkgPaths, projectDir, os.Stdout)
+	fmt.Println(fmt.Sprintf("vMIDDLE_2: %s %s", checkerType, time.Now().String()))
+}
+
+func runCheck3(checkerType okgo.CheckerType, outputPrefix string, checkerParam okgo.CheckerParam, pkgPaths []string, projectDir string, stdout io.Writer) checkResult {
+	fmt.Println(fmt.Sprintf("vSTART: %s %s", checkerType, time.Now().String()))
+	_, _ = fmt.Fprintf(stdout, "%sRunning %s...\n", outputPrefix, checkerType)
+
+	result := checkResult{
+		checkerType: checkerType,
+	}
+	var filteredPkgPaths []string
+	for _, pkgPath := range pkgPaths {
+		if checkerParam.Exclude != nil && checkerParam.Exclude.Match(pkgPath) {
+			// skip excludes
+			continue
+		}
+		filteredPkgPaths = append(filteredPkgPaths, pkgPath)
+	}
+
+	_, pipeW, err := os.Pipe()
+	if err != nil {
+		_, _ = fmt.Fprintf(stdout, "%s%s\n", outputPrefix, "failed to create pipe")
+		result.producedOutput = true
+		return result
+	}
+
+	// run check
+	fmt.Println(fmt.Sprintf("vMIDDLE: %s %s", checkerType, time.Now().String()))
+	checkerParam.Checker.Check(filteredPkgPaths, projectDir, pipeW)
+	fmt.Println(fmt.Sprintf("vMIDDLE_2: %s %s", checkerType, time.Now().String()))
+
+	if err := pipeW.Close(); err != nil {
+		_, _ = fmt.Fprintf(stdout, "%s%s\n", outputPrefix, "failed to close pipe writer")
+		result.producedOutput = true
+		return result
+	}
+
+	_, _ = fmt.Fprintf(stdout, "%sFinished %s\n", outputPrefix, checkerType)
+	fmt.Println(fmt.Sprintf("DONE: %s %s", checkerType, time.Now().String()))
+	return result
+}
+
+func runCheckOld(checkerType okgo.CheckerType, outputPrefix string, checkerParam okgo.CheckerParam, pkgPaths []string, projectDir string, stdout io.Writer) checkResult {
+	fmt.Println(fmt.Sprintf("START: %s %s", checkerType, time.Now().String()))
 	_, _ = fmt.Fprintf(stdout, "%sRunning %s...\n", outputPrefix, checkerType)
 
 	result := checkResult{
@@ -225,6 +315,6 @@ func runCheck(checkerType okgo.CheckerType, outputPrefix string, checkerParam ok
 	<-done
 
 	_, _ = fmt.Fprintf(stdout, "%sFinished %s\n", outputPrefix, checkerType)
-
+	fmt.Println(fmt.Sprintf("DONE: %s %s", checkerType, time.Now().String()))
 	return result
 }
