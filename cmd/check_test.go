@@ -10,15 +10,23 @@ import (
 )
 
 func TestUpgradeConfig(t *testing.T) {
-
-	err := InitAssetCmds(nil)
-	assert.NoError(t, err)
 	okgoConfigFileFlagVal = `/Volumes/git/go/src/github.palantir.build/deployability/instance-group-operator/godel/config/check-plugin.yml`
 	godelConfigFileFlagVal = `/Volumes/git/go/src/github.palantir.build/deployability/instance-group-operator/godel/config/godel.yml`
-
-	_, _, err = okgoProjectParamFromFlags()
+	projectDirFlagVal = `/Volumes/git/go/src/github.palantir.build/deployability/instance-group-operator`
+	p := []string{
+		"/Users/ksimons/.godel/assets/com.palantir.godel-okgo-asset-deadcode-deadcode-asset-1.38.0",
+		"/Users/ksimons/.godel/assets/com.palantir.godel-okgo-asset-golint-golint-asset-1.30.0",
+		"/Users/ksimons/.godel/assets/com.palantir.godel-okgo-asset-importalias-importalias-asset-1.33.0",
+		"/Users/ksimons/.godel/assets/com.palantir.godel-okgo-asset-varcheck-varcheck-asset-1.38.0",
+		"/Users/ksimons/.godel/assets/com.palantir.godel-okgo-asset-compiles-compiles-asset-1.41.0",
+	}
+	assetsFlagVal = p
+	err := InitAssetCmds(nil)
 	assert.NoError(t, err)
-	fmt.Println("a")
+
+	err = runMe()
+	assert.NoError(t, err)
+
 }
 
 func TestUpgradeConfig2(t *testing.T) {
@@ -27,7 +35,7 @@ func TestUpgradeConfig2(t *testing.T) {
 		return
 	}
 	p := []string{
-		"com.palantir.godel-okgo-asset-deadcode:deadcode-asset:1.38.0",
+		"Users/ksimons/.godel/assets/com.palantir.godel-okgo-asset-deadcode-deadcode-asset-1.38.0",
 	}
 	assetsFlagVal = p
 	// initialize commands that require assets
