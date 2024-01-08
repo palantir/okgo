@@ -57,6 +57,26 @@ var (
 	parallelFlagVal bool
 )
 
+func runMe() error {
+	projectParam, godelExcludeMatcher, err := okgoProjectParamFromFlags()
+	if err != nil {
+		return err
+	}
+	parallelism := 1
+	if parallelFlagVal {
+		parallelism = runtime.GOMAXPROCS(-1)
+	}
+	pkgs, err := pkgsInProject(projectDirFlagVal, godelExcludeMatcher)
+	if err != nil {
+		return err
+	}
+	checkerTypes, err := toCheckerTypes(nil, cliCheckerFactory)
+	if err != nil {
+		return err
+	}
+	return check.Run(projectParam, checkerTypes, pkgs, projectDirFlagVal, cliCheckerFactory, parallelism, os.Stdout)
+}
+
 func pkgsInProject(projectDir string, exclude matcher.Matcher) ([]string, error) {
 	wd, err := os.Getwd()
 	if err != nil {
