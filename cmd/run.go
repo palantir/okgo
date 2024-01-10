@@ -38,13 +38,13 @@ func addRunSubcommands() {
 }
 
 func createSingleRunCmd(checkerType okgo.CheckerType, factory okgo.CheckerFactory) *cobra.Command {
-	checker, err := factory.NewChecker(checkerType, nil)
-	if err != nil {
-		panic(errors.Wrapf(err, "failed to create command for checker type %s", checkerType))
-	}
 	return &cobra.Command{
 		Use: string(checkerType),
 		Run: func(cmd *cobra.Command, args []string) {
+			checker, err := factory.NewChecker(checkerType, nil)
+			if err != nil {
+				panic(errors.Wrapf(err, "failed to create command for checker type %s", checkerType))
+			}
 			checker.RunCheckCmd(args, cmd.OutOrStdout())
 		},
 	}
