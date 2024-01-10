@@ -18,13 +18,15 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"github.com/palantir/okgo/okgo"
+	"github.com/pkg/errors"
+	"golang.org/x/sync/errgroup"
 	"io"
 	"os"
 	"os/exec"
 	"sort"
-
-	"github.com/palantir/okgo/okgo"
-	"github.com/pkg/errors"
+	"sync"
+	"time"
 )
 
 type CreatorFunction func(cfgYML []byte) (okgo.Checker, error)
@@ -62,28 +64,31 @@ func NewCreator(checkerType okgo.CheckerType, priority okgo.CheckerPriority, cre
 }
 
 func AssetCheckerCreators(assetPaths ...string) ([]Creator, []okgo.ConfigUpgrader, error) {
+	a := time.Now()
+	fmt.Println("AssetCheckerCreators")
+	fmt.Println(a.String())
 	var checkerCreators []Creator
 	var configUpgraders []okgo.ConfigUpgrader
 	checkerTypeToAssets := make(map[okgo.CheckerType][]string)
+	b := time.Now()
+	typeAndPriorities, err := determineTypeAndPriorityForPaths(assetPaths)
+	if err != nil {
+		return nil, nil, err
+	}
+	fmt.Println(time.Now().Sub(b).String())
 	for _, currAssetPath := range assetPaths {
 		currAssetPath := currAssetPath
-		currChecker := assetChecker{
-			assetPath: currAssetPath,
-		}
-		checkerType, err := currChecker.Type()
-		if err != nil {
-			return nil, nil, errors.Wrapf(err, "failed to determine Checker type name for asset %s", currAssetPath)
-		}
-		checkerPriority, err := currChecker.Priority()
-		if err != nil {
-			return nil, nil, errors.Wrapf(err, "failed to determine Checker priority for asset %s", currAssetPath)
-		}
+		typeAndPriority := typeAndPriorities[currAssetPath]
+		checkerType := typeAndPriority.checkerType
+		checkerPriority := typeAndPriority.checkerPriority
 		checkerTypeToAssets[checkerType] = append(checkerTypeToAssets[checkerType], currAssetPath)
 		checkerCreators = append(checkerCreators, NewCreator(checkerType, checkerPriority,
 			func(cfgYML []byte) (okgo.Checker, error) {
 				newChecker := assetChecker{
-					assetPath: currAssetPath,
-					cfgYML:    string(cfgYML),
+					assetPath:       currAssetPath,
+					checkerType:     checkerType,
+					checkerPriority: checkerPriority,
+					cfgYML:          string(cfgYML),
 				}
 				if err := newChecker.VerifyConfig(); err != nil {
 					return nil, err
@@ -107,7 +112,67 @@ func AssetCheckerCreators(assetPaths ...string) ([]Creator, []okgo.ConfigUpgrade
 		sort.Strings(checkerTypeToAssets[k])
 		return nil, nil, errors.Errorf("Checker type %s provided by multiple assets: %v", k, checkerTypeToAssets[k])
 	}
+	fmt.Println("AssetCheckerCreators OVER")
+	fmt.Println(time.Now().Sub(a).String())
 	return checkerCreators, configUpgraders, nil
+}
+
+type typeAndPriority struct {
+	checkerType     okgo.CheckerType
+	checkerPriority okgo.CheckerPriority
+}
+
+func determineTypeAndPriorityForPaths(assetPaths []string) (map[string]typeAndPriority, error) {
+	toReturn := map[string]typeAndPriority{}
+	var mapLock sync.Mutex
+	g := errgroup.Group{}
+	for _, assetPathSingle := range assetPaths {
+		assetPath := assetPathSingle
+		g.Go(func() error {
+			a, err := determineTypeAndPriority(assetPath)
+			if err != nil {
+				return err
+			}
+			mapLock.Lock()
+			toReturn[assetPath] = a
+			mapLock.Unlock()
+			return nil
+		})
+	}
+	err := g.Wait()
+	if err != nil {
+		return nil, err
+	}
+	return toReturn, nil
+}
+
+func determineTypeAndPriority(assetPath string) (typeAndPriority, error) {
+	b := time.Now()
+	nameCmd := exec.Command(assetPath, typeCmdName)
+	outputBytes, err := runCommand(nameCmd)
+	fmt.Println(time.Now().Sub(b).String())
+	if err != nil {
+		return typeAndPriority{}, err
+	}
+	var checkerType okgo.CheckerType
+	if err := json.Unmarshal(outputBytes, &checkerType); err != nil {
+		return typeAndPriority{}, errors.Wrapf(err, "failed to unmarshal JSON")
+	}
+	b = time.Now()
+	priorityCmd := exec.Command(assetPath, priorityCmdName)
+	outputBytes, err = runCommand(priorityCmd)
+	if err != nil {
+		return typeAndPriority{}, err
+	}
+	var checkerPriority okgo.CheckerPriority
+	if err := json.Unmarshal(outputBytes, &checkerPriority); err != nil {
+		return typeAndPriority{}, errors.Wrapf(err, "failed to unmarshal JSON")
+	}
+	fmt.Println(time.Now().Sub(b).String())
+	return typeAndPriority{
+		checkerType:     checkerType,
+		checkerPriority: checkerPriority,
+	}, nil
 }
 
 // RunCommandAndStreamOutput runs the provided exec.Cmd. The output that is generated to Stdout and Stderr for the
