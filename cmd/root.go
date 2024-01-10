@@ -82,31 +82,6 @@ func okgoProjectParamFromFlags() (okgo.ProjectParam, matcher.Matcher, error) {
 	return okgoProjectParamFromVals(okgoConfigFileFlagVal, godelConfigFileFlagVal, cliCheckerFactory)
 }
 
-func okgoProjectGodelExcludesFromFlags() (matcher.Matcher, error) {
-	return okgoProjectGodelExcludesFromVals(okgoConfigFileFlagVal, godelConfigFileFlagVal)
-}
-
-func okgoProjectGodelExcludesFromVals(okgoConfigFile, godelConfigFile string) (matcher.Matcher, error) {
-	var okgoCfg config.ProjectConfig
-	if okgoConfigFile != "" {
-		cfg, err := loadConfigFromFile(okgoConfigFile)
-		if err != nil {
-			return nil, err
-		}
-		okgoCfg = cfg
-	}
-	var godelExcludes matcher.Matcher
-	if godelConfigFile != "" {
-		excludes, err := godelconfig.ReadGodelConfigExcludesFromFile(godelConfigFile)
-		if err != nil {
-			return nil, err
-		}
-		godelExcludes = excludes.Matcher()
-		okgoCfg.Exclude.Add(excludes)
-	}
-	return godelExcludes, nil
-}
-
 func okgoProjectParamFromVals(okgoConfigFile, godelConfigFile string, factory okgo.CheckerFactory) (okgo.ProjectParam, matcher.Matcher, error) {
 	var okgoCfg config.ProjectConfig
 	if okgoConfigFile != "" {
