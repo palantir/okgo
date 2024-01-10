@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Wait to instantiate checker until single run cmd is invoked
+  links:
+  - https://github.com/palantir/okgo/pull/325
