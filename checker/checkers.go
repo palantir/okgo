@@ -18,16 +18,14 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"github.com/palantir/okgo/okgo"
+	"github.com/pkg/errors"
+	"golang.org/x/sync/errgroup"
 	"io"
 	"os"
 	"os/exec"
 	"sort"
 	"sync"
-	"time"
-
-	"github.com/palantir/okgo/okgo"
-	"github.com/pkg/errors"
-	"golang.org/x/sync/errgroup"
 )
 
 type CreatorFunction func(cfgYML []byte) (okgo.Checker, error)
@@ -65,18 +63,13 @@ func NewCreator(checkerType okgo.CheckerType, priority okgo.CheckerPriority, cre
 }
 
 func AssetCheckerCreators(assetPaths ...string) ([]Creator, []okgo.ConfigUpgrader, error) {
-	a := time.Now()
-	fmt.Println("AssetCheckerCreators")
-	fmt.Println(a.String())
 	var checkerCreators []Creator
 	var configUpgraders []okgo.ConfigUpgrader
 	checkerTypeToAssets := make(map[okgo.CheckerType][]string)
-	b := time.Now()
 	typeAndPriorities, err := determineTypeAndPriorityForPaths(assetPaths)
 	if err != nil {
 		return nil, nil, err
 	}
-	fmt.Println(time.Now().Sub(b).String())
 	for _, currAssetPath := range assetPaths {
 		currAssetPath := currAssetPath
 		typeAndPriority := typeAndPriorities[currAssetPath]
@@ -113,8 +106,6 @@ func AssetCheckerCreators(assetPaths ...string) ([]Creator, []okgo.ConfigUpgrade
 		sort.Strings(checkerTypeToAssets[k])
 		return nil, nil, errors.Errorf("Checker type %s provided by multiple assets: %v", k, checkerTypeToAssets[k])
 	}
-	fmt.Println("AssetCheckerCreators OVER")
-	fmt.Println(time.Now().Sub(a).String())
 	return checkerCreators, configUpgraders, nil
 }
 
@@ -148,10 +139,8 @@ func determineTypeAndPriorityForPaths(assetPaths []string) (map[string]typeAndPr
 }
 
 func determineTypeAndPriority(assetPath string) (typeAndPriority, error) {
-	b := time.Now()
 	nameCmd := exec.Command(assetPath, typeCmdName)
 	outputBytes, err := runCommand(nameCmd)
-	fmt.Println(time.Now().Sub(b).String())
 	if err != nil {
 		return typeAndPriority{}, err
 	}
@@ -159,7 +148,6 @@ func determineTypeAndPriority(assetPath string) (typeAndPriority, error) {
 	if err := json.Unmarshal(outputBytes, &checkerType); err != nil {
 		return typeAndPriority{}, errors.Wrapf(err, "failed to unmarshal JSON")
 	}
-	b = time.Now()
 	priorityCmd := exec.Command(assetPath, priorityCmdName)
 	outputBytes, err = runCommand(priorityCmd)
 	if err != nil {
@@ -169,7 +157,6 @@ func determineTypeAndPriority(assetPath string) (typeAndPriority, error) {
 	if err := json.Unmarshal(outputBytes, &checkerPriority); err != nil {
 		return typeAndPriority{}, errors.Wrapf(err, "failed to unmarshal JSON")
 	}
-	fmt.Println(time.Now().Sub(b).String())
 	return typeAndPriority{
 		checkerType:     checkerType,
 		checkerPriority: checkerPriority,
