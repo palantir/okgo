@@ -16,23 +16,13 @@ package checker
 
 import (
 	"fmt"
-	"io"
-	"os/exec"
-	"strings"
-	"time"
-
 	"github.com/palantir/godel/v2/framework/pluginapi"
 	"github.com/palantir/okgo/okgo"
 	"github.com/pkg/errors"
+	"io"
+	"os/exec"
+	"strings"
 )
-
-var globalTime time.Duration
-
-func updatea(newTime time.Duration) {
-	globalTime = globalTime + newTime
-	// fmt.Println("Global")
-	// fmt.Println(globalTime)
-}
 
 type assetChecker struct {
 	assetPath       string
@@ -50,16 +40,12 @@ func (c *assetChecker) Priority() (okgo.CheckerPriority, error) {
 }
 
 func (c *assetChecker) VerifyConfig() error {
-	a := time.Now()
 	verifyConfigCmd := exec.Command(c.assetPath, verifyConfigCmdName,
 		"--"+commonCmdConfigYMLFlagName, c.cfgYML,
 	)
 	if _, err := runCommand(verifyConfigCmd); err != nil {
 		return err
 	}
-	// fmt.Println(fmt.Sprintf("verify: %s", c))
-	aa := time.Now().Sub(a)
-	updatea(aa)
 	return nil
 }
 
