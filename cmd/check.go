@@ -15,7 +15,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"path"
 	"path/filepath"
@@ -51,7 +50,6 @@ var (
 			if err != nil {
 				return err
 			}
-			fmt.Println("RUN CHECK")
 			return check.Run(projectParam, checkerTypes, pkgs, projectDirFlagVal, cliCheckerFactory, parallelism, cmd.OutOrStdout())
 		},
 	}
