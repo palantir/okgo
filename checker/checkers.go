@@ -114,14 +114,13 @@ type typeAndPriority struct {
 }
 
 func determineTypeAndPriorityForPaths(assetPaths []string) (map[string]typeAndPriority, error) {
-	typeAndPriorities := map[string]typeAndPriority{}
+	typeAndPriorities := make(map[string]typeAndPriority)
 	for _, assetPath := range assetPaths {
 		typeAndPriorityForAsset, err := determineTypeAndPriority(assetPath)
 		if err != nil {
 			return nil, err
 		}
 		typeAndPriorities[assetPath] = typeAndPriorityForAsset
-
 	}
 	return typeAndPriorities, nil
 }
