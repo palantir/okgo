@@ -65,25 +65,23 @@ func AssetCheckerCreators(assetPaths ...string) ([]Creator, []okgo.ConfigUpgrade
 	var checkerCreators []Creator
 	var configUpgraders []okgo.ConfigUpgrader
 	checkerTypeToAssets := make(map[okgo.CheckerType][]string)
+	typeAndPriorities, err := determineTypeAndPriorityForPaths(assetPaths)
+	if err != nil {
+		return nil, nil, err
+	}
 	for _, currAssetPath := range assetPaths {
 		currAssetPath := currAssetPath
-		currChecker := assetChecker{
-			assetPath: currAssetPath,
-		}
-		checkerType, err := currChecker.Type()
-		if err != nil {
-			return nil, nil, errors.Wrapf(err, "failed to determine Checker type name for asset %s", currAssetPath)
-		}
-		checkerPriority, err := currChecker.Priority()
-		if err != nil {
-			return nil, nil, errors.Wrapf(err, "failed to determine Checker priority for asset %s", currAssetPath)
-		}
+		typeAndPriority := typeAndPriorities[currAssetPath]
+		checkerType := typeAndPriority.checkerType
+		checkerPriority := typeAndPriority.checkerPriority
 		checkerTypeToAssets[checkerType] = append(checkerTypeToAssets[checkerType], currAssetPath)
 		checkerCreators = append(checkerCreators, NewCreator(checkerType, checkerPriority,
 			func(cfgYML []byte) (okgo.Checker, error) {
 				newChecker := assetChecker{
-					assetPath: currAssetPath,
-					cfgYML:    string(cfgYML),
+					assetPath:       currAssetPath,
+					cfgYML:          string(cfgYML),
+					checkerType:     checkerType,
+					checkerPriority: checkerPriority,
 				}
 				if err := newChecker.VerifyConfig(); err != nil {
 					return nil, err
@@ -108,6 +106,48 @@ func AssetCheckerCreators(assetPaths ...string) ([]Creator, []okgo.ConfigUpgrade
 		return nil, nil, errors.Errorf("Checker type %s provided by multiple assets: %v", k, checkerTypeToAssets[k])
 	}
 	return checkerCreators, configUpgraders, nil
+}
+
+type typeAndPriority struct {
+	checkerType     okgo.CheckerType
+	checkerPriority okgo.CheckerPriority
+}
+
+func determineTypeAndPriorityForPaths(assetPaths []string) (map[string]typeAndPriority, error) {
+	typeAndPriorities := make(map[string]typeAndPriority)
+	for _, assetPath := range assetPaths {
+		typeAndPriorityForAsset, err := determineTypeAndPriority(assetPath)
+		if err != nil {
+			return nil, err
+		}
+		typeAndPriorities[assetPath] = typeAndPriorityForAsset
+	}
+	return typeAndPriorities, nil
+}
+
+func determineTypeAndPriority(assetPath string) (typeAndPriority, error) {
+	nameCmd := exec.Command(assetPath, typeCmdName)
+	outputBytes, err := runCommand(nameCmd)
+	if err != nil {
+		return typeAndPriority{}, err
+	}
+	var checkerType okgo.CheckerType
+	if err := json.Unmarshal(outputBytes, &checkerType); err != nil {
+		return typeAndPriority{}, errors.Wrapf(err, "failed to unmarshal JSON")
+	}
+	priorityCmd := exec.Command(assetPath, priorityCmdName)
+	outputBytes, err = runCommand(priorityCmd)
+	if err != nil {
+		return typeAndPriority{}, err
+	}
+	var checkerPriority okgo.CheckerPriority
+	if err := json.Unmarshal(outputBytes, &checkerPriority); err != nil {
+		return typeAndPriority{}, errors.Wrapf(err, "failed to unmarshal JSON")
+	}
+	return typeAndPriority{
+		checkerType:     checkerType,
+		checkerPriority: checkerPriority,
+	}, nil
 }
 
 // RunCommandAndStreamOutput runs the provided exec.Cmd. The output that is generated to Stdout and Stderr for the
