@@ -18,12 +18,13 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"github.com/palantir/okgo/okgo"
-	"github.com/pkg/errors"
 	"io"
 	"os"
 	"os/exec"
 	"sort"
+
+	"github.com/palantir/okgo/okgo"
+	"github.com/pkg/errors"
 )
 
 type CreatorFunction func(cfgYML []byte) (okgo.Checker, error)
