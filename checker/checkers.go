@@ -81,9 +81,9 @@ func AssetCheckerCreators(assetPaths ...string) ([]Creator, []okgo.ConfigUpgrade
 			func(cfgYML []byte) (okgo.Checker, error) {
 				newChecker := assetChecker{
 					assetPath:       currAssetPath,
+					cfgYML:          string(cfgYML),
 					checkerType:     checkerType,
 					checkerPriority: checkerPriority,
-					cfgYML:          string(cfgYML),
 				}
 				if err := newChecker.VerifyConfig(); err != nil {
 					return nil, err
@@ -116,7 +116,7 @@ type typeAndPriority struct {
 }
 
 func determineTypeAndPriorityForPaths(assetPaths []string) (map[string]typeAndPriority, error) {
-	toReturn := map[string]typeAndPriority{}
+	typeAndPriorities := map[string]typeAndPriority{}
 	var mapLock sync.Mutex
 	g := errgroup.Group{}
 	for _, assetPathSingle := range assetPaths {
@@ -127,7 +127,7 @@ func determineTypeAndPriorityForPaths(assetPaths []string) (map[string]typeAndPr
 				return err
 			}
 			mapLock.Lock()
-			toReturn[assetPath] = a
+			typeAndPriorities[assetPath] = a
 			mapLock.Unlock()
 			return nil
 		})
@@ -136,7 +136,7 @@ func determineTypeAndPriorityForPaths(assetPaths []string) (map[string]typeAndPr
 	if err != nil {
 		return nil, err
 	}
-	return toReturn, nil
+	return typeAndPriorities, nil
 }
 
 func determineTypeAndPriority(assetPath string) (typeAndPriority, error) {
