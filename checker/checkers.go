@@ -122,12 +122,12 @@ func determineTypeAndPriorityForPaths(assetPaths []string) (map[string]typeAndPr
 	for _, assetPathSingle := range assetPaths {
 		assetPath := assetPathSingle
 		g.Go(func() error {
-			a, err := determineTypeAndPriority(assetPath)
+			typeAndPriorityForAsset, err := determineTypeAndPriority(assetPath)
 			if err != nil {
 				return err
 			}
 			mapLock.Lock()
-			typeAndPriorities[assetPath] = a
+			typeAndPriorities[assetPath] = typeAndPriorityForAsset
 			mapLock.Unlock()
 			return nil
 		})
