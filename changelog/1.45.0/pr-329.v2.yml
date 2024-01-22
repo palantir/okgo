@@ -1,0 +1,6 @@
+type: fix
+fix:
+  description: Attach the checkerType and checkerPriority to the assetChecker itself
+    because they are immutable
+  links:
+  - https://github.com/palantir/okgo/pull/329
