@@ -22,9 +22,11 @@ import (
 	"os"
 	"os/exec"
 	"sort"
+	"sync"
 
 	"github.com/palantir/okgo/okgo"
 	"github.com/pkg/errors"
+	"golang.org/x/sync/errgroup"
 )
 
 type CreatorFunction func(cfgYML []byte) (okgo.Checker, error)
@@ -115,12 +117,25 @@ type typeAndPriority struct {
 
 func determineTypeAndPriorityForPaths(assetPaths []string) (map[string]typeAndPriority, error) {
 	typeAndPriorities := make(map[string]typeAndPriority)
-	for _, assetPath := range assetPaths {
-		typeAndPriorityForAsset, err := determineTypeAndPriority(assetPath)
-		if err != nil {
-			return nil, err
-		}
-		typeAndPriorities[assetPath] = typeAndPriorityForAsset
+	var (
+		mapLock sync.Mutex
+		g       errgroup.Group
+	)
+	for _, assetPathSingle := range assetPaths {
+		assetPath := assetPathSingle
+		g.Go(func() error {
+			typeAndPriorityForAsset, err := determineTypeAndPriority(assetPath)
+			if err != nil {
+				return err
+			}
+			mapLock.Lock()
+			typeAndPriorities[assetPath] = typeAndPriorityForAsset
+			mapLock.Unlock()
+			return nil
+		})
+	}
+	if err := g.Wait(); err != nil {
+		return nil, err
 	}
 	return typeAndPriorities, nil
 }

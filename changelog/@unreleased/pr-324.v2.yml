@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Implement determineTypeAndPriorityForPaths in parallel to grab typeAndPriorities for individual checkers faster
+  links:
+  - https://github.com/palantir/okgo/pull/324
