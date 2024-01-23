@@ -116,9 +116,11 @@ type typeAndPriority struct {
 }
 
 func determineTypeAndPriorityForPaths(assetPaths []string) (map[string]typeAndPriority, error) {
-	typeAndPriorities := map[string]typeAndPriority{}
-	var mapLock sync.Mutex
-	g := errgroup.Group{}
+	typeAndPriorities := make(map[string]typeAndPriority)
+	var (
+		mapLock sync.Mutex
+		g       errgroup.Group
+	)
 	for _, assetPathSingle := range assetPaths {
 		assetPath := assetPathSingle
 		g.Go(func() error {
@@ -132,8 +134,7 @@ func determineTypeAndPriorityForPaths(assetPaths []string) (map[string]typeAndPr
 			return nil
 		})
 	}
-	err := g.Wait()
-	if err != nil {
+	if err := g.Wait(); err != nil {
 		return nil, err
 	}
 	return typeAndPriorities, nil

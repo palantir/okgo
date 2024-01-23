@@ -86,7 +86,6 @@ func Run(projectParam okgo.ProjectParam, checkersToRun []okgo.CheckerType, pkgPa
 }
 
 func sortCheckers(checkers []okgo.CheckerParam) error {
-	fmt.Println("SORT CHECKERS")
 	var rErr error
 	sort.Slice(checkers, func(i, j int) bool {
 		var iPriority okgo.CheckerPriority
