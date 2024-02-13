@@ -30,6 +30,7 @@ type assetChecker struct {
 	cfgYML          string
 	checkerType     okgo.CheckerType
 	checkerPriority okgo.CheckerPriority
+	checkerMultiCPU okgo.CheckerMultiCPU
 }
 
 func (c *assetChecker) Type() (okgo.CheckerType, error) {
@@ -38,6 +39,10 @@ func (c *assetChecker) Type() (okgo.CheckerType, error) {
 
 func (c *assetChecker) Priority() (okgo.CheckerPriority, error) {
 	return c.checkerPriority, nil
+}
+
+func (c *assetChecker) MultiCPU() (okgo.CheckerMultiCPU, error) {
+	return c.checkerMultiCPU, nil
 }
 
 func (c *assetChecker) VerifyConfig() error {

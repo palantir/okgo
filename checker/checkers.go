@@ -34,12 +34,14 @@ type CreatorFunction func(cfgYML []byte) (okgo.Checker, error)
 type Creator interface {
 	Type() okgo.CheckerType
 	Priority() okgo.CheckerPriority
+	MultiCPU() okgo.CheckerMultiCPU
 	Creator() CreatorFunction
 }
 
 type creatorStruct struct {
 	checkerType okgo.CheckerType
 	priority    okgo.CheckerPriority
+	multiCPU    okgo.CheckerMultiCPU
 	creator     CreatorFunction
 }
 
@@ -51,14 +53,23 @@ func (c *creatorStruct) Priority() okgo.CheckerPriority {
 	return c.priority
 }
 
+func (c *creatorStruct) MultiCPU() okgo.CheckerMultiCPU {
+	return c.multiCPU
+}
+
 func (c *creatorStruct) Creator() CreatorFunction {
 	return c.creator
 }
 
-func NewCreator(checkerType okgo.CheckerType, priority okgo.CheckerPriority, creatorFn CreatorFunction) Creator {
+func NewCreator(
+	checkerType okgo.CheckerType,
+	priority okgo.CheckerPriority,
+	multiCPU okgo.CheckerMultiCPU,
+	creatorFn CreatorFunction) Creator {
 	return &creatorStruct{
 		checkerType: checkerType,
 		priority:    priority,
+		multiCPU:    multiCPU,
 		creator:     creatorFn,
 	}
 }
@@ -73,17 +84,19 @@ func AssetCheckerCreators(assetPaths ...string) ([]Creator, []okgo.ConfigUpgrade
 	}
 	for _, currAssetPath := range assetPaths {
 		currAssetPath := currAssetPath
-		typeAndPriority := typeAndPriorities[currAssetPath]
-		checkerType := typeAndPriority.checkerType
-		checkerPriority := typeAndPriority.checkerPriority
+		checkerMetadata := typeAndPriorities[currAssetPath]
+		checkerType := checkerMetadata.checkerType
+		checkerPriority := checkerMetadata.checkerPriority
+		checkerMultiCPU := checkerMetadata.checkerMultiCPU
 		checkerTypeToAssets[checkerType] = append(checkerTypeToAssets[checkerType], currAssetPath)
-		checkerCreators = append(checkerCreators, NewCreator(checkerType, checkerPriority,
+		checkerCreators = append(checkerCreators, NewCreator(checkerType, checkerPriority, checkerMultiCPU,
 			func(cfgYML []byte) (okgo.Checker, error) {
 				newChecker := assetChecker{
 					assetPath:       currAssetPath,
 					cfgYML:          string(cfgYML),
 					checkerType:     checkerType,
 					checkerPriority: checkerPriority,
+					checkerMultiCPU: checkerMultiCPU,
 				}
 				if err := newChecker.VerifyConfig(); err != nil {
 					return nil, err
@@ -110,13 +123,14 @@ func AssetCheckerCreators(assetPaths ...string) ([]Creator, []okgo.ConfigUpgrade
 	return checkerCreators, configUpgraders, nil
 }
 
-type typeAndPriority struct {
+type checkerMetadata struct {
 	checkerType     okgo.CheckerType
 	checkerPriority okgo.CheckerPriority
+	checkerMultiCPU okgo.CheckerMultiCPU
 }
 
-func determineTypeAndPriorityForPaths(assetPaths []string) (map[string]typeAndPriority, error) {
-	typeAndPriorities := make(map[string]typeAndPriority)
+func determineTypeAndPriorityForPaths(assetPaths []string) (map[string]checkerMetadata, error) {
+	typeAndPriorities := make(map[string]checkerMetadata)
 	var (
 		mapLock sync.Mutex
 		g       errgroup.Group
@@ -140,29 +154,43 @@ func determineTypeAndPriorityForPaths(assetPaths []string) (map[string]typeAndPr
 	return typeAndPriorities, nil
 }
 
-func determineTypeAndPriority(assetPath string) (typeAndPriority, error) {
+func determineTypeAndPriority(assetPath string) (checkerMetadata, error) {
 	nameCmd := exec.Command(assetPath, typeCmdName)
 	outputBytes, err := runCommand(nameCmd)
 	if err != nil {
-		return typeAndPriority{}, err
+		return checkerMetadata{}, err
 	}
 	var checkerType okgo.CheckerType
 	if err := json.Unmarshal(outputBytes, &checkerType); err != nil {
-		return typeAndPriority{}, errors.Wrapf(err, "failed to unmarshal JSON")
+		return checkerMetadata{}, errors.Wrapf(err, "failed to unmarshal JSON")
 	}
 	priorityCmd := exec.Command(assetPath, priorityCmdName)
 	outputBytes, err = runCommand(priorityCmd)
 	if err != nil {
-		return typeAndPriority{}, err
+		return checkerMetadata{}, err
 	}
 	var checkerPriority okgo.CheckerPriority
 	if err := json.Unmarshal(outputBytes, &checkerPriority); err != nil {
-		return typeAndPriority{}, errors.Wrapf(err, "failed to unmarshal JSON")
+		return checkerMetadata{}, errors.Wrapf(err, "failed to unmarshal JSON")
 	}
-	return typeAndPriority{
+	return checkerMetadata{
 		checkerType:     checkerType,
 		checkerPriority: checkerPriority,
+		checkerMultiCPU: getCheckerMultiCPU(assetPath),
 	}, nil
+}
+
+func getCheckerMultiCPU(assetPath string) okgo.CheckerMultiCPU {
+	multiCPUCmd := exec.Command(assetPath, multiCPUCmdName)
+	outputBytes, err := runCommand(multiCPUCmd)
+	if err != nil {
+		return false
+	}
+	var checkerPriority okgo.CheckerMultiCPU
+	if err := json.Unmarshal(outputBytes, &checkerPriority); err != nil {
+		return false
+	}
+	return checkerPriority
 }
 
 // RunCommandAndStreamOutput runs the provided exec.Cmd. The output that is generated to Stdout and Stderr for the

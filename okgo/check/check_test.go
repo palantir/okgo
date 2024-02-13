@@ -29,6 +29,7 @@ import (
 
 type inMemoryChecker struct {
 	checkerType okgo.CheckerType
+	multiCPU    okgo.CheckerMultiCPU
 	issue       *okgo.Issue
 	times       int
 	timeToWait  *time.Duration
@@ -43,6 +44,10 @@ func (i *inMemoryChecker) Type() (okgo.CheckerType, error) {
 
 func (i *inMemoryChecker) Priority() (okgo.CheckerPriority, error) {
 	return 0, nil
+}
+
+func (i *inMemoryChecker) MultiCPU() (okgo.CheckerMultiCPU, error) {
+	return i.multiCPU, nil
 }
 
 func (i *inMemoryChecker) Check(pkgPaths []string, projectDir string, stdout io.Writer) {
@@ -190,6 +195,7 @@ func TestRun_NoErrorsWithWaitsAndSplit(t *testing.T) {
 				Checker: &inMemoryChecker{
 					checkerType: "errcheck",
 					timeToWait:  toDuration(time.Second),
+					multiCPU:    true,
 				},
 			},
 			"test2": {
@@ -202,6 +208,7 @@ func TestRun_NoErrorsWithWaitsAndSplit(t *testing.T) {
 				Checker: &inMemoryChecker{
 					checkerType: "compiles",
 					timeToWait:  toDuration(time.Second),
+					multiCPU:    true,
 				},
 			},
 			"test4": {

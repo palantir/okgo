@@ -64,14 +64,9 @@ func Run(
 	startASingleWorker()
 
 	// First run all jobs that need to be ran one at a time
-	var checkersWeCannotRunInParallel []okgo.CheckerParam
-	var checkersWeCanRunInParallel []okgo.CheckerParam
-	for _, checker := range checkers {
-		if doesCheckerSupportParallelism(checker) {
-			checkersWeCannotRunInParallel = append(checkersWeCannotRunInParallel, checker)
-		} else {
-			checkersWeCanRunInParallel = append(checkersWeCanRunInParallel, checker)
-		}
+	checkersWeCannotRunInParallel, checkersWeCanRunInParallel, err := partitionCheckerJobs(checkers)
+	if err != nil {
+		return err
 	}
 	// Start all the single ones
 	for _, checker := range checkersWeCannotRunInParallel {
@@ -102,10 +97,21 @@ func Run(
 	return nil
 }
 
-func doesCheckerSupportParallelism(checkerParam okgo.CheckerParam) bool {
-	checkerT, _ := checkerParam.Checker.Type()
-	checkerType := string(checkerT)
-	return strings.Contains(checkerType, "errcheck") || strings.Contains(checkerType, "compiles")
+func partitionCheckerJobs(checkers []okgo.CheckerParam) ([]okgo.CheckerParam, []okgo.CheckerParam, error) {
+	var checkersWeCannotRunInParallel []okgo.CheckerParam
+	var checkersWeCanRunInParallel []okgo.CheckerParam
+	for _, checker := range checkers {
+		multiCPU, err := checker.Checker.MultiCPU()
+		if err != nil {
+			return nil, nil, err
+		}
+		if multiCPU {
+			checkersWeCannotRunInParallel = append(checkersWeCannotRunInParallel, checker)
+		} else {
+			checkersWeCanRunInParallel = append(checkersWeCanRunInParallel, checker)
+		}
+	}
+	return checkersWeCannotRunInParallel, checkersWeCanRunInParallel, nil
 }
 
 func getCheckersToRun(projectParam okgo.ProjectParam, checkersToRun []okgo.CheckerType, factory okgo.CheckerFactory) ([]okgo.CheckerParam, int, error) {
