@@ -31,23 +31,24 @@ func Run(projectParam okgo.ProjectParam, checkersToRun []okgo.CheckerType, pkgPa
 	if err != nil {
 		return err
 	}
-	jobs := make(chan okgo.CheckerParam)
+	jobs := make(chan okgo.CheckerParam, len(checkers))
 	results := make(chan checkResult, len(checkers))
+
+	// Add all jobs that we need to run, and close the channel out
+	for _, checker := range checkers {
+		jobs <- checker
+	}
+	close(jobs)
 
 	// if there are fewer checkers than max parallelism, update parallelism to number of checkers
 	if len(checkers) < parallelism {
 		parallelism = len(checkers)
 	}
 
+	// Start a routine that pulls off of jobs, and writes into results
 	for w := 0; w < parallelism; w++ {
 		go singleCheckWorker(pkgPaths, projectDir, maxTypeLen, parallelism > 1, jobs, results, stdout)
 	}
-
-	for _, checker := range checkers {
-		jobs <- checker
-	}
-	close(jobs)
-
 	var checksWithFailures []string
 	for range checkers {
 		fmt.Println("in for")

@@ -159,11 +159,25 @@ func TestRun_NoErrorsWithWaits(t *testing.T) {
 					timeToWait:  toDuration(time.Millisecond * 500),
 				},
 			},
+			"test3": {
+				Checker: &inMemoryChecker{
+					checkerType: "test3",
+					timeToWait:  toDuration(time.Second),
+				},
+			},
+			"test4": {
+				Checker: &inMemoryChecker{
+					checkerType: "test4",
+					timeToWait:  toDuration(time.Millisecond * 500),
+				},
+			},
 		},
 	}
 	checkersToRun := []okgo.CheckerType{
 		"test1",
 		"test2",
+		"test3",
+		"test4",
 	}
 	err := Run(projectParam, checkersToRun, nil, "dir", nil, 2, os.Stdout)
 	assert.NoError(t, err)
