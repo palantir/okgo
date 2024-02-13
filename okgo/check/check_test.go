@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"testing"
+	"time"
 )
 
 type inMemoryChecker struct {
@@ -17,12 +18,12 @@ func (i inMemoryChecker) Type() (okgo.CheckerType, error) {
 }
 
 func (i inMemoryChecker) Priority() (okgo.CheckerPriority, error) {
-	//TODO implement me
-	panic("implement Priority")
+	return 0, nil
 }
 
 func (i inMemoryChecker) Check(pkgPaths []string, projectDir string, stdout io.Writer) {
-	stdout.Write([]byte(`uhoh`))
+	time.Sleep(time.Second)
+	// stdout.Write([]byte(`uhoh`))
 }
 
 func (i inMemoryChecker) RunCheckCmd(args []string, stdout io.Writer) {
@@ -40,11 +41,35 @@ func TestRun(t *testing.T) {
 				Filters:  nil,
 				Exclude:  nil,
 			},
+			"test2": {
+				Skip:     false,
+				Priority: nil,
+				Checker:  &inMemoryChecker{checkerType: "test2"},
+				Filters:  nil,
+				Exclude:  nil,
+			},
+			"test3": {
+				Skip:     false,
+				Priority: nil,
+				Checker:  &inMemoryChecker{checkerType: "test3"},
+				Filters:  nil,
+				Exclude:  nil,
+			},
+			"test4": {
+				Skip:     false,
+				Priority: nil,
+				Checker:  &inMemoryChecker{checkerType: "test4"},
+				Filters:  nil,
+				Exclude:  nil,
+			},
 		},
 	}
 	checkersToRun := []okgo.CheckerType{
 		"test1",
+		"test2",
+		"test3",
+		"test4",
 	}
-	err := Run(projectParam, checkersToRun, nil, "dir", nil, 1, os.Stdout)
+	err := Run(projectParam, checkersToRun, nil, "dir", nil, 2, os.Stdout)
 	assert.NoError(t, err)
 }
