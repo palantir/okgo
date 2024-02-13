@@ -42,6 +42,12 @@ func ParamPriority(priority okgo.CheckerPriority) AmalgomatedCheckerParam {
 	})
 }
 
+func ParamMultiCPU(multiCPU okgo.CheckerMultiCPU) AmalgomatedCheckerParam {
+	return paramFunc(func(c *amalgomatedChecker) {
+		c.multiCPU = multiCPU
+	})
+}
+
 func ParamLineParserWithWd(lineParserWithWd func(line, wd string) okgo.Issue) AmalgomatedCheckerParam {
 	return paramFunc(func(c *amalgomatedChecker) {
 		c.lineParserWithWd = lineParserWithWd
@@ -77,6 +83,7 @@ func NewAmalgomatedChecker(typeName okgo.CheckerType, params ...AmalgomatedCheck
 type amalgomatedChecker struct {
 	typeName              okgo.CheckerType
 	priority              okgo.CheckerPriority
+	multiCPU              okgo.CheckerMultiCPU
 	lineParserWithWd      func(line, wd string) okgo.Issue
 	includeProjectDirFlag bool
 	args                  []string
@@ -88,6 +95,10 @@ func (c *amalgomatedChecker) Type() (okgo.CheckerType, error) {
 
 func (c *amalgomatedChecker) Priority() (okgo.CheckerPriority, error) {
 	return c.priority, nil
+}
+
+func (c *amalgomatedChecker) MultiCPU() (okgo.CheckerMultiCPU, error) {
+	return c.multiCPU, nil
 }
 
 func (c *amalgomatedChecker) Check(pkgPaths []string, projectDir string, stdout io.Writer) {
