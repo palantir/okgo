@@ -161,15 +161,7 @@ func runCheck(checkerType okgo.CheckerType, outputPrefix string, checkerParam ok
 	result := checkResult{
 		checkerType: checkerType,
 	}
-	var filteredPkgPaths []string
-	for _, pkgPath := range pkgPaths {
-		if checkerParam.Exclude != nil && checkerParam.Exclude.Match(pkgPath) {
-			// skip excludes
-			continue
-		}
-		filteredPkgPaths = append(filteredPkgPaths, pkgPath)
-	}
-
+	filteredPkgPaths := getFilteredPkgPaths(checkerParam, pkgPaths)
 	pipeR, pipeW, err := os.Pipe()
 	if err != nil {
 		_, _ = fmt.Fprintf(stdout, "%s%s\n", outputPrefix, "failed to create pipe")
@@ -184,21 +176,7 @@ func runCheck(checkerType okgo.CheckerType, outputPrefix string, checkerParam ok
 		for scanner.Scan() {
 			line := scanner.Text()
 			issue := okgo.NewIssueFromJSON(line)
-
-			if issue.Path != "" && checkerParam.Exclude != nil && checkerParam.Exclude.Match(issue.Path) {
-				// if path matches exclude, skip
-				continue
-			}
-
-			// if issue matches filter, skip
-			filterOut := false
-			for _, filter := range checkerParam.Filters {
-				if filter.Filter(issue) {
-					filterOut = true
-					break
-				}
-			}
-			if filterOut {
+			if shouldSkipIssue(issue, checkerParam) {
 				continue
 			}
 			_, _ = fmt.Fprintf(stdout, "%s%s\n", outputPrefix, strings.Replace(issue.String(), "\n", "\n"+outputPrefix, -1))
@@ -227,4 +205,33 @@ func runCheck(checkerType okgo.CheckerType, outputPrefix string, checkerParam ok
 	_, _ = fmt.Fprintf(stdout, "%sFinished %s\n", outputPrefix, checkerType)
 
 	return result
+}
+
+func getFilteredPkgPaths(checkerParam okgo.CheckerParam, pkgPaths []string) []string {
+	var filteredPkgPaths []string
+	for _, pkgPath := range pkgPaths {
+		if checkerParam.Exclude != nil && checkerParam.Exclude.Match(pkgPath) {
+			// skip excludes
+			continue
+		}
+		filteredPkgPaths = append(filteredPkgPaths, pkgPath)
+	}
+	return filteredPkgPaths
+}
+
+func shouldSkipIssue(issue okgo.Issue, checkerParam okgo.CheckerParam) bool {
+	if issue.Path != "" && checkerParam.Exclude != nil && checkerParam.Exclude.Match(issue.Path) {
+		// if path matches exclude, skip
+		return true
+	}
+
+	// if issue matches filter, skip
+	filterOut := false
+	for _, filter := range checkerParam.Filters {
+		if filter.Filter(issue) {
+			filterOut = true
+			break
+		}
+	}
+	return filterOut
 }
