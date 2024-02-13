@@ -75,7 +75,7 @@ func TestRun_NoErrors(t *testing.T) {
 		"test1",
 		"test2",
 	}
-	err := Run(projectParam, checkersToRun, nil, "dir", nil, 2, os.Stdout)
+	err := Run(projectParam, checkersToRun, nil, "dir", nil, 2, NewDebugLogger(true), os.Stdout)
 	assert.NoError(t, err)
 }
 
@@ -96,7 +96,7 @@ func TestRun_Errors(t *testing.T) {
 		"test1",
 		"test2",
 	}
-	err := Run(projectParam, checkersToRun, nil, "dir", nil, 2, os.Stdout)
+	err := Run(projectParam, checkersToRun, nil, "dir", nil, 2, NewDebugLogger(true), os.Stdout)
 	assert.Error(t, err)
 }
 
@@ -122,7 +122,7 @@ func TestRun_ErrorsButFilteredOut(t *testing.T) {
 		"test1",
 		"test2",
 	}
-	err := Run(projectParam, checkersToRun, []string{"p1"}, "dir", nil, 2, os.Stdout)
+	err := Run(projectParam, checkersToRun, []string{"p1"}, "dir", nil, 2, NewDebugLogger(true), os.Stdout)
 
 	assert.NoError(t, err)
 }
@@ -140,7 +140,7 @@ func TestRun_Hang(t *testing.T) {
 	checkersToRun := []okgo.CheckerType{
 		"error_check",
 	}
-	err := Run(projectParam, checkersToRun, nil, "dir", nil, 2, os.Stdout)
+	err := Run(projectParam, checkersToRun, nil, "dir", nil, 2, NewDebugLogger(true), os.Stdout)
 	assert.Error(t, err)
 }
 
@@ -179,7 +179,7 @@ func TestRun_NoErrorsWithWaits(t *testing.T) {
 		"test3",
 		"test4",
 	}
-	err := Run(projectParam, checkersToRun, nil, "dir", nil, 2, os.Stdout)
+	err := Run(projectParam, checkersToRun, nil, "dir", nil, 2, NewDebugLogger(true), os.Stdout)
 	assert.NoError(t, err)
 }
 

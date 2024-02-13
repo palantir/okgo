@@ -26,7 +26,15 @@ import (
 	"github.com/pkg/errors"
 )
 
-func Run(projectParam okgo.ProjectParam, checkersToRun []okgo.CheckerType, pkgPaths []string, projectDir string, factory okgo.CheckerFactory, parallelism int, stdout io.Writer) error {
+func Run(
+	projectParam okgo.ProjectParam,
+	checkersToRun []okgo.CheckerType,
+	pkgPaths []string,
+	projectDir string,
+	factory okgo.CheckerFactory,
+	parallelism int,
+	debugLogger DebugLogger,
+	stdout io.Writer) error {
 	checkers, maxTypeLen, err := getCheckersToRun(projectParam, checkersToRun, factory)
 	if err != nil {
 		return err
@@ -44,10 +52,11 @@ func Run(projectParam okgo.ProjectParam, checkersToRun []okgo.CheckerType, pkgPa
 	if len(checkers) < parallelism {
 		parallelism = len(checkers)
 	}
+	debugLogger.Log(fmt.Sprintf("Parallelism: %d, Checker Count: %d", parallelism, len(checkers)))
 
 	// Start a routine that pulls off of jobs, and writes into results
 	for w := 0; w < parallelism; w++ {
-		go singleCheckWorker(pkgPaths, projectDir, maxTypeLen, parallelism > 1, jobs, results, stdout)
+		go singleCheckWorker(pkgPaths, projectDir, maxTypeLen, parallelism > 1, jobs, results, debugLogger, stdout)
 	}
 	var checksWithFailures []string
 	for range checkers {
@@ -144,13 +153,28 @@ type checkResult struct {
 	producedOutput bool
 }
 
-func singleCheckWorker(pkgPaths []string, projectDir string, maxTypeLen int, multipleWorkers bool, checkJobs <-chan okgo.CheckerParam, results chan<- checkResult, stdout io.Writer) {
+func singleCheckWorker(
+	pkgPaths []string,
+	projectDir string,
+	maxTypeLen int,
+	multipleWorkers bool,
+	checkJobs <-chan okgo.CheckerParam,
+	results chan<- checkResult,
+	debugLogger DebugLogger,
+	stdout io.Writer) {
 	for checkerParam := range checkJobs {
-		results <- getCheckResultForCheck(pkgPaths, projectDir, maxTypeLen, multipleWorkers, checkerParam, stdout)
+		results <- getCheckResultForCheck(pkgPaths, projectDir, maxTypeLen, multipleWorkers, checkerParam, debugLogger, stdout)
 	}
 }
 
-func getCheckResultForCheck(pkgPaths []string, projectDir string, maxTypeLen int, multipleWorkers bool, checkerParam okgo.CheckerParam, stdout io.Writer) checkResult {
+func getCheckResultForCheck(
+	pkgPaths []string,
+	projectDir string,
+	maxTypeLen int,
+	multipleWorkers bool,
+	checkerParam okgo.CheckerParam,
+	debugLogger DebugLogger,
+	stdout io.Writer) checkResult {
 	if checkerParam.Skip {
 		return checkResult{}
 	}
@@ -166,14 +190,21 @@ func getCheckResultForCheck(pkgPaths []string, projectDir string, maxTypeLen int
 	if multipleWorkers {
 		prefixWithPadding = fmt.Sprintf("[%s] ", checkerType) + strings.Repeat(" ", maxTypeLen-len(checkerType))
 	}
-	return runCheck(checkerType, prefixWithPadding, checkerParam, pkgPaths, projectDir, stdout)
+	return runCheck(checkerType, prefixWithPadding, checkerParam, pkgPaths, projectDir, debugLogger, stdout)
 }
 
-func runCheck(checkerType okgo.CheckerType, outputPrefix string, checkerParam okgo.CheckerParam, pkgPaths []string, projectDir string, stdout io.Writer) checkResult {
+func runCheck(
+	checkerType okgo.CheckerType,
+	outputPrefix string,
+	checkerParam okgo.CheckerParam,
+	pkgPaths []string,
+	projectDir string,
+	debugLogger DebugLogger,
+	stdout io.Writer) checkResult {
 	result := checkResult{
 		checkerType: checkerType,
 	}
-	producedOutput, err := runCheckAndPrintOutput(checkerType, outputPrefix, checkerParam, pkgPaths, projectDir, stdout)
+	producedOutput, err := runCheckAndPrintOutput(checkerType, outputPrefix, checkerParam, pkgPaths, projectDir, debugLogger, stdout)
 	if err != nil {
 		_, _ = fmt.Fprintf(stdout, "%s%s\n", outputPrefix, err.Error())
 		result.producedOutput = true
@@ -183,16 +214,25 @@ func runCheck(checkerType okgo.CheckerType, outputPrefix string, checkerParam ok
 	return result
 }
 
-func runCheckAndPrintOutput(checkerType okgo.CheckerType, outputPrefix string, checkerParam okgo.CheckerParam, pkgPaths []string, projectDir string, stdout io.Writer) (bool, error) {
-	_, _ = fmt.Fprintf(stdout, "%sRunning %s...\n", outputPrefix, checkerType)
+func runCheckAndPrintOutput(
+	checkerType okgo.CheckerType,
+	outputPrefix string,
+	checkerParam okgo.CheckerParam,
+	pkgPaths []string,
+	projectDir string,
+	debugLogger DebugLogger,
+	stdout io.Writer) (bool, error) {
 	filteredPkgPaths := getFilteredPkgPaths(checkerParam, pkgPaths)
-
+	_, _ = fmt.Fprintf(stdout, "%sRunning %s...\n", outputPrefix, checkerType)
 	pipeR, pipeW, err := os.Pipe()
 	if err != nil {
 		return false, err
 	}
 	// run check
+	debugLogger.Log(fmt.Sprintf("Start running check for %s", checkerType))
 	checkerParam.Checker.Check(filteredPkgPaths, projectDir, pipeW)
+	debugLogger.Log(fmt.Sprintf("Finished running check for %s", checkerType))
+
 	// Close the pipe in which the output was written to
 	if err := pipeW.Close(); err != nil {
 		return false, err

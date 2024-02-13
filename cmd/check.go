@@ -15,7 +15,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"path"
 	"path/filepath"
@@ -43,9 +42,8 @@ var (
 			if parallelFlagVal {
 				parallelism = runtime.GOMAXPROCS(-1)
 			}
-			if debugFlagVal {
-				fmt.Println("Running checks in debug mode")
-			}
+			debugLogger := check.NewDebugLogger(debugFlagVal)
+			debugLogger.Log("Running checks in debug mode")
 			pkgs, err := pkgsInProject(projectDirFlagVal, godelExcludeMatcher)
 			if err != nil {
 				return err
@@ -54,7 +52,7 @@ var (
 			if err != nil {
 				return err
 			}
-			return check.Run(projectParam, checkerTypes, pkgs, projectDirFlagVal, cliCheckerFactory, parallelism, cmd.OutOrStdout())
+			return check.Run(projectParam, checkerTypes, pkgs, projectDirFlagVal, cliCheckerFactory, parallelism, debugLogger, cmd.OutOrStdout())
 		},
 	}
 
