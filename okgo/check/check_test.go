@@ -26,6 +26,7 @@ import (
 )
 
 type inMemoryChecker struct {
+	okgo.Checker
 	checkerType okgo.CheckerType
 	issue       *okgo.Issue
 }
@@ -44,10 +45,6 @@ func (i *inMemoryChecker) Check(pkgPaths []string, projectDir string, stdout io.
 	}
 	bytes, _ := json.Marshal(i.issue)
 	_, _ = stdout.Write(bytes)
-}
-
-func (i *inMemoryChecker) RunCheckCmd(args []string, stdout io.Writer) {
-	panic("implement RunCheckCmd")
 }
 
 func TestRun_NoErrors(t *testing.T) {
@@ -113,6 +110,5 @@ func TestRun_ErrorsButFilteredOut(t *testing.T) {
 		"test2",
 	}
 	err := Run(projectParam, checkersToRun, []string{"p1"}, "dir", nil, 2, os.Stdout)
-
 	assert.NoError(t, err)
 }
