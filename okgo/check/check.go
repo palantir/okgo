@@ -156,11 +156,55 @@ func singleCheckWorker(pkgPaths []string, projectDir string, maxTypeLen int, mul
 }
 
 func runCheck(checkerType okgo.CheckerType, outputPrefix string, checkerParam okgo.CheckerParam, pkgPaths []string, projectDir string, stdout io.Writer) checkResult {
-	_, _ = fmt.Fprintf(stdout, "%sRunning %s...\n", outputPrefix, checkerType)
-
 	result := checkResult{
 		checkerType: checkerType,
 	}
+	producedOutput, err := runCheckAndPrintOutput(checkerType, outputPrefix, checkerParam, pkgPaths, projectDir, stdout)
+	if err != nil {
+		_, _ = fmt.Fprintf(stdout, "%s%s\n", outputPrefix, err.Error())
+		result.producedOutput = true
+	} else {
+		result.producedOutput = producedOutput
+	}
+	return result
+}
+
+func runCheckAndPrintOutput(checkerType okgo.CheckerType, outputPrefix string, checkerParam okgo.CheckerParam, pkgPaths []string, projectDir string, stdout io.Writer) (bool, error) {
+	_, _ = fmt.Fprintf(stdout, "%sRunning %s...\n", outputPrefix, checkerType)
+	filteredPkgPaths := getFilteredPkgPaths(checkerParam, pkgPaths)
+
+	pipeR, pipeW, err := os.Pipe()
+	if err != nil {
+		return false, err
+	}
+	// run check
+	checkerParam.Checker.Check(filteredPkgPaths, projectDir, pipeW)
+	// Close the pipe in which the output was written to
+	if err := pipeW.Close(); err != nil {
+		return false, err
+	}
+	producedOutput := false
+
+	// Pull that through the filtering process, we will continue on errors to ensure all output is printed
+	scanner := bufio.NewScanner(pipeR)
+	for scanner.Scan() {
+		line := scanner.Text()
+		issue := okgo.NewIssueFromJSON(line)
+		if shouldSkipIssue(issue, checkerParam) {
+			continue
+		}
+		_, _ = fmt.Fprintf(stdout, "%s%s\n", outputPrefix, strings.Replace(issue.String(), "\n", "\n"+outputPrefix, -1))
+		producedOutput = true
+	}
+
+	if err := scanner.Err(); err != nil {
+		return false, err
+	}
+	_, _ = fmt.Fprintf(stdout, "%sFinished %s\n", outputPrefix, checkerType)
+	return producedOutput, nil
+}
+
+func getFilteredPkgPaths(checkerParam okgo.CheckerParam, pkgPaths []string) []string {
 	var filteredPkgPaths []string
 	for _, pkgPath := range pkgPaths {
 		if checkerParam.Exclude != nil && checkerParam.Exclude.Match(pkgPath) {
@@ -169,50 +213,7 @@ func runCheck(checkerType okgo.CheckerType, outputPrefix string, checkerParam ok
 		}
 		filteredPkgPaths = append(filteredPkgPaths, pkgPath)
 	}
-
-	pipeR, pipeW, err := os.Pipe()
-	if err != nil {
-		_, _ = fmt.Fprintf(stdout, "%s%s\n", outputPrefix, "failed to create pipe")
-		result.producedOutput = true
-		return result
-	}
-
-	done := make(chan bool)
-
-	go func() {
-		scanner := bufio.NewScanner(pipeR)
-		for scanner.Scan() {
-			line := scanner.Text()
-			issue := okgo.NewIssueFromJSON(line)
-			if shouldSkipIssue(issue, checkerParam) {
-				continue
-			}
-			_, _ = fmt.Fprintf(stdout, "%s%s\n", outputPrefix, strings.Replace(issue.String(), "\n", "\n"+outputPrefix, -1))
-			result.producedOutput = true
-		}
-		if err := scanner.Err(); err != nil {
-			_, _ = fmt.Fprintf(stdout, "%s%s\n", outputPrefix, "scanner error encountered while reading output")
-			result.producedOutput = true
-		}
-		done <- true
-	}()
-
-	// run check
-	checkerParam.Checker.Check(filteredPkgPaths, projectDir, pipeW)
-
-	if err := pipeW.Close(); err != nil {
-		<-done
-		_, _ = fmt.Fprintf(stdout, "%s%s\n", outputPrefix, "failed to close pipe writer")
-		result.producedOutput = true
-		return result
-	}
-
-	// wait until all output has been read
-	<-done
-
-	_, _ = fmt.Fprintf(stdout, "%sFinished %s\n", outputPrefix, checkerType)
-
-	return result
+	return filteredPkgPaths
 }
 
 func shouldSkipIssue(issue okgo.Issue, checkerParam okgo.CheckerParam) bool {
