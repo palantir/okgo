@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"path"
 	"path/filepath"
@@ -41,6 +42,9 @@ var (
 			parallelism := 1
 			if parallelFlagVal {
 				parallelism = runtime.GOMAXPROCS(-1)
+			}
+			if debugFlagVal {
+				fmt.Println("Running checks in debug mode")
 			}
 			pkgs, err := pkgsInProject(projectDirFlagVal, godelExcludeMatcher)
 			if err != nil {
