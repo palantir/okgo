@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: Add helper functions and tests to `check.Run`
+  links:
+  - https://github.com/palantir/okgo/pull/340
