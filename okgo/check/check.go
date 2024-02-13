@@ -141,7 +141,6 @@ func singleCheckWorker(pkgPaths []string, projectDir string, maxTypeLen int, mul
 			results <- checkResult{}
 			continue
 		}
-
 		checkerType, err := checkerParam.Checker.Type()
 		if err != nil {
 			_, _ = fmt.Fprintf(stdout, "failed to determine type for Checker: %v", err)
