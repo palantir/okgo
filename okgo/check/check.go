@@ -137,22 +137,33 @@ type checkResult struct {
 
 func singleCheckWorker(pkgPaths []string, projectDir string, maxTypeLen int, multipleWorkers bool, checkJobs <-chan okgo.CheckerParam, results chan<- checkResult, stdout io.Writer) {
 	for checkerParam := range checkJobs {
-		if checkerParam.Skip {
-			results <- checkResult{}
-			continue
-		}
-
-		checkerType, err := checkerParam.Checker.Type()
-		if err != nil {
-			_, _ = fmt.Fprintf(stdout, "failed to determine type for Checker: %v", err)
-			continue
-		}
-		prefixWithPadding := ""
-		if multipleWorkers {
-			prefixWithPadding = fmt.Sprintf("[%s] ", checkerType) + strings.Repeat(" ", maxTypeLen-len(checkerType))
-		}
-		results <- runCheck(checkerType, prefixWithPadding, checkerParam, pkgPaths, projectDir, stdout)
+		results <- getCheckResultFromChecker(pkgPaths, projectDir, maxTypeLen, multipleWorkers, checkerParam, stdout)
 	}
+}
+
+func getCheckResultFromChecker(
+	pkgPaths []string,
+	projectDir string,
+	maxTypeLen int,
+	multipleWorkers bool,
+	checkerParam okgo.CheckerParam,
+	stdout io.Writer) checkResult {
+	if checkerParam.Skip {
+		return checkResult{}
+	}
+	checkerType, err := checkerParam.Checker.Type()
+	if err != nil {
+		_, _ = fmt.Fprintf(stdout, "failed to determine type for Checker: %v", err)
+		return checkResult{
+			checkerType:    "UNKNOWN_CHECK_TYPE",
+			producedOutput: true,
+		}
+	}
+	prefixWithPadding := ""
+	if multipleWorkers {
+		prefixWithPadding = fmt.Sprintf("[%s] ", checkerType) + strings.Repeat(" ", maxTypeLen-len(checkerType))
+	}
+	return runCheck(checkerType, prefixWithPadding, checkerParam, pkgPaths, projectDir, stdout)
 }
 
 func runCheck(checkerType okgo.CheckerType, outputPrefix string, checkerParam okgo.CheckerParam, pkgPaths []string, projectDir string, stdout io.Writer) checkResult {

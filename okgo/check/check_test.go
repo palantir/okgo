@@ -16,6 +16,7 @@ package check
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"os"
 	"testing"
@@ -32,6 +33,9 @@ type inMemoryChecker struct {
 }
 
 func (i *inMemoryChecker) Type() (okgo.CheckerType, error) {
+	if i.checkerType == "error_on_type_check" {
+		return "", errors.New("hi")
+	}
 	return i.checkerType, nil
 }
 
@@ -111,4 +115,19 @@ func TestRun_ErrorsButFilteredOut(t *testing.T) {
 	}
 	err := Run(projectParam, checkersToRun, []string{"p1"}, "dir", nil, 2, os.Stdout)
 	assert.NoError(t, err)
+}
+
+func TestRun_ErrorsOnTypeCheck(t *testing.T) {
+	projectParam := okgo.ProjectParam{
+		Checks: map[okgo.CheckerType]okgo.CheckerParam{
+			"error_on_type_check": {
+				Checker: &inMemoryChecker{checkerType: "error_on_type_check"},
+			},
+		},
+	}
+	checkersToRun := []okgo.CheckerType{
+		"error_on_type_check",
+	}
+	err := Run(projectParam, checkersToRun, nil, "dir", nil, 2, os.Stdout)
+	assert.Error(t, err)
 }
