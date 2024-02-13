@@ -183,6 +183,45 @@ func TestRun_NoErrorsWithWaits(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestRun_NoErrorsWithWaitsAndSplit(t *testing.T) {
+	projectParam := okgo.ProjectParam{
+		Checks: map[okgo.CheckerType]okgo.CheckerParam{
+			"errcheck": {
+				Checker: &inMemoryChecker{
+					checkerType: "errcheck",
+					timeToWait:  toDuration(time.Second),
+				},
+			},
+			"test2": {
+				Checker: &inMemoryChecker{
+					checkerType: "test2",
+					timeToWait:  toDuration(time.Millisecond * 500),
+				},
+			},
+			"compiles": {
+				Checker: &inMemoryChecker{
+					checkerType: "compiles",
+					timeToWait:  toDuration(time.Second),
+				},
+			},
+			"test4": {
+				Checker: &inMemoryChecker{
+					checkerType: "test4",
+					timeToWait:  toDuration(time.Millisecond * 500),
+				},
+			},
+		},
+	}
+	checkersToRun := []okgo.CheckerType{
+		"errcheck",
+		"test2",
+		"compiles",
+		"test4",
+	}
+	err := Run(projectParam, checkersToRun, nil, "dir", nil, 2, NewDebugLogger(true), os.Stdout)
+	assert.NoError(t, err)
+}
+
 func toDuration(timeToWait time.Duration) *time.Duration {
 	return &timeToWait
 }

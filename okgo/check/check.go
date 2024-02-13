@@ -39,33 +39,60 @@ func Run(
 	if err != nil {
 		return err
 	}
-	jobs := make(chan okgo.CheckerParam, len(checkers))
-	results := make(chan checkResult, len(checkers))
-
-	// Add all jobs that we need to run, and close the channel out
-	for _, checker := range checkers {
-		jobs <- checker
-	}
-	close(jobs)
-
 	// if there are fewer checkers than max parallelism, update parallelism to number of checkers
 	if len(checkers) < parallelism {
 		parallelism = len(checkers)
 	}
-	debugLogger.Log(fmt.Sprintf("Parallelism: %d, Checker Count: %d", parallelism, len(checkers)))
 
-	// Start a routine that pulls off of jobs, and writes into results
-	for w := 0; w < parallelism; w++ {
-		go singleCheckWorker(pkgPaths, projectDir, maxTypeLen, parallelism > 1, jobs, results, debugLogger, stdout)
-	}
+	jobs := make(chan okgo.CheckerParam, len(checkers))
+	results := make(chan checkResult, len(checkers))
+
 	var checksWithFailures []string
-	for range checkers {
-		fmt.Println("in for")
-		checkResult := <-results
-		if checkResult.producedOutput {
-			checksWithFailures = append(checksWithFailures, string(checkResult.checkerType))
+	pullResultsOff := func(toRun int) {
+		for i := 0; i < toRun; i++ {
+			checkResult := <-results
+			if checkResult.producedOutput {
+				checksWithFailures = append(checksWithFailures, string(checkResult.checkerType))
+			}
 		}
 	}
+
+	startASingleWorker := func() {
+		go singleCheckWorker(pkgPaths, projectDir, maxTypeLen, parallelism > 1, jobs, results, debugLogger, stdout)
+	}
+	// We always have 1 worker no matter what
+	startASingleWorker()
+
+	// First run all jobs that need to be ran one at a time
+	var checkersWeCannotRunInParallel []okgo.CheckerParam
+	var checkersWeCanRunInParallel []okgo.CheckerParam
+	for _, checker := range checkers {
+		if doesCheckerSupportParallelism(checker) {
+			checkersWeCannotRunInParallel = append(checkersWeCannotRunInParallel, checker)
+		} else {
+			checkersWeCanRunInParallel = append(checkersWeCanRunInParallel, checker)
+		}
+	}
+	// Start all the single ones
+	for _, checker := range checkersWeCannotRunInParallel {
+		jobs <- checker
+	}
+	// And then pull off those results
+	pullResultsOff(len(checkersWeCannotRunInParallel))
+
+	// Now we can queue up the rest
+	for _, checker := range checkersWeCanRunInParallel {
+		jobs <- checker
+	}
+
+	// And start more workers, minus the one that is running
+	for w := 0; w < parallelism-1; w++ {
+		startASingleWorker()
+	}
+
+	// And then we pull off the rest
+	pullResultsOff(len(checkersWeCanRunInParallel))
+
 	if len(checksWithFailures) > 0 {
 		sort.Strings(checksWithFailures)
 		_, _ = fmt.Fprintln(stdout, "Check(s) produced output:", checksWithFailures)
@@ -73,6 +100,12 @@ func Run(
 		return fmt.Errorf("")
 	}
 	return nil
+}
+
+func doesCheckerSupportParallelism(checkerParam okgo.CheckerParam) bool {
+	checkerT, _ := checkerParam.Checker.Type()
+	checkerType := string(checkerT)
+	return strings.Contains(checkerType, "errcheck") || strings.Contains(checkerType, "compiles")
 }
 
 func getCheckersToRun(projectParam okgo.ProjectParam, checkersToRun []okgo.CheckerType, factory okgo.CheckerFactory) ([]okgo.CheckerParam, int, error) {
