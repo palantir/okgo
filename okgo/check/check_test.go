@@ -47,7 +47,6 @@ func (i *inMemoryChecker) Check(pkgPaths []string, projectDir string, stdout io.
 }
 
 func (i *inMemoryChecker) RunCheckCmd(args []string, stdout io.Writer) {
-	//TODO implement me
 	panic("implement RunCheckCmd")
 }
 
