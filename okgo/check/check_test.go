@@ -23,7 +23,7 @@ func (i inMemoryChecker) Priority() (okgo.CheckerPriority, error) {
 
 func (i inMemoryChecker) Check(pkgPaths []string, projectDir string, stdout io.Writer) {
 	time.Sleep(time.Second)
-	// stdout.Write([]byte(`uhoh`))
+	stdout.Write([]byte(`uhoh`))
 }
 
 func (i inMemoryChecker) RunCheckCmd(args []string, stdout io.Writer) {
