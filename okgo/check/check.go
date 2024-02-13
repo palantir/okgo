@@ -27,31 +27,10 @@ import (
 )
 
 func Run(projectParam okgo.ProjectParam, checkersToRun []okgo.CheckerType, pkgPaths []string, projectDir string, factory okgo.CheckerFactory, parallelism int, stdout io.Writer) error {
-	var checkers []okgo.CheckerParam
-	maxTypeLen := 0
-	for _, checkerType := range checkersToRun {
-		if len(checkerType) > maxTypeLen {
-			maxTypeLen = len(checkerType)
-		}
-		param, ok := projectParam.Checks[checkerType]
-		if ok {
-			checkers = append(checkers, param)
-			continue
-		}
-		checker, err := factory.NewChecker(checkerType, nil)
-		if err != nil {
-			return errors.Wrapf(err, "failed to create checkerType %s", checkerType)
-		}
-		checkers = append(checkers, okgo.CheckerParam{
-			Checker: checker,
-		})
-	}
-
-	// sort the checkers
-	if err := sortCheckers(checkers); err != nil {
+	checkers, maxTypeLen, err := getCheckersToRun(projectParam, checkersToRun, factory)
+	if err != nil {
 		return err
 	}
-
 	jobs := make(chan okgo.CheckerParam)
 	results := make(chan checkResult, len(checkers))
 
@@ -71,6 +50,7 @@ func Run(projectParam okgo.ProjectParam, checkersToRun []okgo.CheckerType, pkgPa
 
 	var checksWithFailures []string
 	for range checkers {
+		fmt.Println("in for")
 		checkResult := <-results
 		if checkResult.producedOutput {
 			checksWithFailures = append(checksWithFailures, string(checkResult.checkerType))
@@ -83,6 +63,34 @@ func Run(projectParam okgo.ProjectParam, checkersToRun []okgo.CheckerType, pkgPa
 		return fmt.Errorf("")
 	}
 	return nil
+}
+
+func getCheckersToRun(projectParam okgo.ProjectParam, checkersToRun []okgo.CheckerType, factory okgo.CheckerFactory) ([]okgo.CheckerParam, int, error) {
+	var checkers []okgo.CheckerParam
+	maxTypeLen := 0
+	for _, checkerType := range checkersToRun {
+		if len(checkerType) > maxTypeLen {
+			maxTypeLen = len(checkerType)
+		}
+		param, ok := projectParam.Checks[checkerType]
+		if ok {
+			checkers = append(checkers, param)
+			continue
+		}
+		checker, err := factory.NewChecker(checkerType, nil)
+		if err != nil {
+			return nil, 0, errors.Wrapf(err, "failed to create checkerType %s", checkerType)
+		}
+		checkers = append(checkers, okgo.CheckerParam{
+			Checker: checker,
+		})
+	}
+
+	// sort the checkers
+	if err := sortCheckers(checkers); err != nil {
+		return nil, 0, err
+	}
+	return checkers, maxTypeLen, nil
 }
 
 func sortCheckers(checkers []okgo.CheckerParam) error {
@@ -137,22 +145,27 @@ type checkResult struct {
 
 func singleCheckWorker(pkgPaths []string, projectDir string, maxTypeLen int, multipleWorkers bool, checkJobs <-chan okgo.CheckerParam, results chan<- checkResult, stdout io.Writer) {
 	for checkerParam := range checkJobs {
-		if checkerParam.Skip {
-			results <- checkResult{}
-			continue
-		}
-
-		checkerType, err := checkerParam.Checker.Type()
-		if err != nil {
-			_, _ = fmt.Fprintf(stdout, "failed to determine type for Checker: %v", err)
-			continue
-		}
-		prefixWithPadding := ""
-		if multipleWorkers {
-			prefixWithPadding = fmt.Sprintf("[%s] ", checkerType) + strings.Repeat(" ", maxTypeLen-len(checkerType))
-		}
-		results <- runCheck(checkerType, prefixWithPadding, checkerParam, pkgPaths, projectDir, stdout)
+		results <- getCheckResultForCheck(pkgPaths, projectDir, maxTypeLen, multipleWorkers, checkerParam, stdout)
 	}
+}
+
+func getCheckResultForCheck(pkgPaths []string, projectDir string, maxTypeLen int, multipleWorkers bool, checkerParam okgo.CheckerParam, stdout io.Writer) checkResult {
+	if checkerParam.Skip {
+		return checkResult{}
+	}
+	checkerType, err := checkerParam.Checker.Type()
+	if err != nil {
+		_, _ = fmt.Fprintf(stdout, "failed to determine type for Checker: %v", err)
+		return checkResult{
+			checkerType:    "UNKNOWN_CHECK_TYPE",
+			producedOutput: true,
+		}
+	}
+	prefixWithPadding := ""
+	if multipleWorkers {
+		prefixWithPadding = fmt.Sprintf("[%s] ", checkerType) + strings.Repeat(" ", maxTypeLen-len(checkerType))
+	}
+	return runCheck(checkerType, prefixWithPadding, checkerParam, pkgPaths, projectDir, stdout)
 }
 
 func runCheck(checkerType okgo.CheckerType, outputPrefix string, checkerParam okgo.CheckerParam, pkgPaths []string, projectDir string, stdout io.Writer) checkResult {

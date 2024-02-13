@@ -16,9 +16,11 @@ package check
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/palantir/okgo/okgo"
 	"github.com/palantir/pkg/matcher"
@@ -28,9 +30,14 @@ import (
 type inMemoryChecker struct {
 	checkerType okgo.CheckerType
 	issue       *okgo.Issue
+	times       int
+	timeToWait  *time.Duration
 }
 
 func (i *inMemoryChecker) Type() (okgo.CheckerType, error) {
+	if i.checkerType == "error_check" {
+		return "", errors.New("hi")
+	}
 	return i.checkerType, nil
 }
 
@@ -39,6 +46,9 @@ func (i *inMemoryChecker) Priority() (okgo.CheckerPriority, error) {
 }
 
 func (i *inMemoryChecker) Check(pkgPaths []string, projectDir string, stdout io.Writer) {
+	if i.timeToWait != nil {
+		time.Sleep(*i.timeToWait)
+	}
 	if i.issue == nil {
 		return
 	}
@@ -115,4 +125,50 @@ func TestRun_ErrorsButFilteredOut(t *testing.T) {
 	err := Run(projectParam, checkersToRun, []string{"p1"}, "dir", nil, 2, os.Stdout)
 
 	assert.NoError(t, err)
+}
+
+func TestRun_Hang(t *testing.T) {
+	projectParam := okgo.ProjectParam{
+		Checks: map[okgo.CheckerType]okgo.CheckerParam{
+			"error_check": {
+				Checker: &inMemoryChecker{checkerType: "error_check", issue: &okgo.Issue{
+					Content: "output",
+				}},
+			},
+		},
+	}
+	checkersToRun := []okgo.CheckerType{
+		"error_check",
+	}
+	err := Run(projectParam, checkersToRun, nil, "dir", nil, 2, os.Stdout)
+	assert.Error(t, err)
+}
+
+func TestRun_NoErrorsWithWaits(t *testing.T) {
+	projectParam := okgo.ProjectParam{
+		Checks: map[okgo.CheckerType]okgo.CheckerParam{
+			"test1": {
+				Checker: &inMemoryChecker{
+					checkerType: "test1",
+					timeToWait:  toDuration(time.Second),
+				},
+			},
+			"test2": {
+				Checker: &inMemoryChecker{
+					checkerType: "test2",
+					timeToWait:  toDuration(time.Millisecond * 500),
+				},
+			},
+		},
+	}
+	checkersToRun := []okgo.CheckerType{
+		"test1",
+		"test2",
+	}
+	err := Run(projectParam, checkersToRun, nil, "dir", nil, 2, os.Stdout)
+	assert.NoError(t, err)
+}
+
+func toDuration(timeToWait time.Duration) *time.Duration {
+	return &timeToWait
 }
