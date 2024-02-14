@@ -150,30 +150,31 @@ func TestRun_Hang(t *testing.T) {
 }
 
 func TestRun_NoErrorsWithWaits(t *testing.T) {
+	timeToWait := time.Millisecond * 50
 	projectParam := okgo.ProjectParam{
 		Checks: map[okgo.CheckerType]okgo.CheckerParam{
 			"test1": {
 				Checker: &inMemoryChecker{
 					checkerType: "test1",
-					timeToWait:  toDuration(time.Second),
+					timeToWait:  toDuration(timeToWait),
 				},
 			},
 			"test2": {
 				Checker: &inMemoryChecker{
 					checkerType: "test2",
-					timeToWait:  toDuration(time.Millisecond * 500),
+					timeToWait:  toDuration(timeToWait),
 				},
 			},
 			"test3": {
 				Checker: &inMemoryChecker{
 					checkerType: "test3",
-					timeToWait:  toDuration(time.Second),
+					timeToWait:  toDuration(timeToWait),
 				},
 			},
 			"test4": {
 				Checker: &inMemoryChecker{
 					checkerType: "test4",
-					timeToWait:  toDuration(time.Millisecond * 500),
+					timeToWait:  toDuration(timeToWait),
 				},
 			},
 		},
@@ -184,49 +185,64 @@ func TestRun_NoErrorsWithWaits(t *testing.T) {
 		"test3",
 		"test4",
 	}
-	err := Run(projectParam, checkersToRun, nil, "dir", nil, 2, NewDebugLogger(true), os.Stdout)
+	// Ensure with max parallelism we can run all of them
+	start := time.Now()
+	err := Run(projectParam, checkersToRun, nil, "dir", nil, 4, NewDebugLogger(true), os.Stdout)
 	assert.NoError(t, err)
+	assert.Greater(t, time.Now().Sub(start), timeToWait)
+	assert.Less(t, time.Now().Sub(start), timeToWait*2)
+
+	// And scaled down we take longer
+	start = time.Now()
+	err = Run(projectParam, checkersToRun, nil, "dir", nil, 2, NewDebugLogger(true), os.Stdout)
+	assert.NoError(t, err)
+	assert.Greater(t, time.Now().Sub(start), timeToWait*2)
+	assert.Less(t, time.Now().Sub(start), timeToWait*3)
 }
 
 func TestRun_NoErrorsWithWaitsAndSplit(t *testing.T) {
+	timeToWait := time.Millisecond * 50
 	projectParam := okgo.ProjectParam{
 		Checks: map[okgo.CheckerType]okgo.CheckerParam{
-			"errcheck": {
+			"test1": {
 				Checker: &inMemoryChecker{
-					checkerType: "errcheck",
-					timeToWait:  toDuration(time.Second),
+					checkerType: "test1",
+					timeToWait:  toDuration(timeToWait),
 					multiCPU:    true,
 				},
 			},
 			"test2": {
 				Checker: &inMemoryChecker{
 					checkerType: "test2",
-					timeToWait:  toDuration(time.Millisecond * 500),
+					timeToWait:  toDuration(timeToWait),
 				},
 			},
-			"compiles": {
+			"test3": {
 				Checker: &inMemoryChecker{
-					checkerType: "compiles",
-					timeToWait:  toDuration(time.Second),
+					checkerType: "test3",
+					timeToWait:  toDuration(timeToWait),
 					multiCPU:    true,
 				},
 			},
 			"test4": {
 				Checker: &inMemoryChecker{
 					checkerType: "test4",
-					timeToWait:  toDuration(time.Millisecond * 500),
+					timeToWait:  toDuration(timeToWait),
 				},
 			},
 		},
 	}
 	checkersToRun := []okgo.CheckerType{
-		"errcheck",
+		"test1",
 		"test2",
-		"compiles",
+		"test3",
 		"test4",
 	}
+	start := time.Now()
 	err := Run(projectParam, checkersToRun, nil, "dir", nil, 2, NewDebugLogger(true), os.Stdout)
 	assert.NoError(t, err)
+	assert.Greater(t, time.Now().Sub(start), timeToWait*3)
+	assert.Less(t, time.Now().Sub(start), timeToWait*4)
 }
 
 func toDuration(timeToWait time.Duration) *time.Duration {
