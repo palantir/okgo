@@ -36,7 +36,7 @@ type Checker interface {
 	// Priority returns the priority of the check. A lower number indicates a higher priority (will be run earlier).
 	Priority() (CheckerPriority, error)
 
-	// MultiCPU returns if the check uses multiple CPUs  in its check command
+	// MultiCPU returns if the check uses multiple CPUs in its check command
 	MultiCPU() (CheckerMultiCPU, error)
 
 	// Check runs the check on the specified packages and writes the output to the provided io.Writer. All output

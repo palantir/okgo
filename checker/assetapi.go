@@ -82,7 +82,7 @@ const multiCPUCmdName = "multicpu"
 func newMultiCPUCmd(cpu okgo.CheckerMultiCPU) *cobra.Command {
 	return &cobra.Command{
 		Use:   multiCPUCmdName,
-		Short: "Print is the check command uses multiple cpus",
+		Short: "Print whether the check uses multiple CPUs",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			outputJSON, err := json.Marshal(cpu)
 			if err != nil {
