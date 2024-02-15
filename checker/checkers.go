@@ -82,13 +82,13 @@ func AssetCheckerCreators(assetPaths ...string) ([]Creator, []okgo.ConfigUpgrade
 	var checkerCreators []Creator
 	var configUpgraders []okgo.ConfigUpgrader
 	checkerTypeToAssets := make(map[okgo.CheckerType][]string)
-	typeAndPriorities, err := determineTypeAndPriorityForPaths(assetPaths)
+	checkerMetadatas, err := determineCheckerMetadataForPaths(assetPaths)
 	if err != nil {
 		return nil, nil, err
 	}
 	for _, currAssetPath := range assetPaths {
 		currAssetPath := currAssetPath
-		checkerMetadata := typeAndPriorities[currAssetPath]
+		checkerMetadata := checkerMetadatas[currAssetPath]
 		checkerType := checkerMetadata.checkerType
 		checkerPriority := checkerMetadata.checkerPriority
 		checkerMultiCPU := checkerMetadata.checkerMultiCPU
@@ -133,8 +133,8 @@ type checkerMetadata struct {
 	checkerMultiCPU okgo.CheckerMultiCPU
 }
 
-func determineTypeAndPriorityForPaths(assetPaths []string) (map[string]checkerMetadata, error) {
-	typeAndPriorities := make(map[string]checkerMetadata)
+func determineCheckerMetadataForPaths(assetPaths []string) (map[string]checkerMetadata, error) {
+	checkerMetadatas := make(map[string]checkerMetadata)
 	var (
 		mapLock sync.Mutex
 		g       errgroup.Group
@@ -142,12 +142,12 @@ func determineTypeAndPriorityForPaths(assetPaths []string) (map[string]checkerMe
 	for _, assetPathSingle := range assetPaths {
 		assetPath := assetPathSingle
 		g.Go(func() error {
-			typeAndPriorityForAsset, err := determineTypeAndPriority(assetPath)
+			checkerMetadataForAsset, err := determineCheckerMetadata(assetPath)
 			if err != nil {
 				return err
 			}
 			mapLock.Lock()
-			typeAndPriorities[assetPath] = typeAndPriorityForAsset
+			checkerMetadatas[assetPath] = checkerMetadataForAsset
 			mapLock.Unlock()
 			return nil
 		})
@@ -155,10 +155,10 @@ func determineTypeAndPriorityForPaths(assetPaths []string) (map[string]checkerMe
 	if err := g.Wait(); err != nil {
 		return nil, err
 	}
-	return typeAndPriorities, nil
+	return checkerMetadatas, nil
 }
 
-func determineTypeAndPriority(assetPath string) (checkerMetadata, error) {
+func determineCheckerMetadata(assetPath string) (checkerMetadata, error) {
 	nameCmd := exec.Command(assetPath, typeCmdName)
 	outputBytes, err := runCommand(nameCmd)
 	if err != nil {
@@ -180,8 +180,21 @@ func determineTypeAndPriority(assetPath string) (checkerMetadata, error) {
 	return checkerMetadata{
 		checkerType:     checkerType,
 		checkerPriority: checkerPriority,
-		checkerMultiCPU: false,
+		checkerMultiCPU: getCheckerMultiCPU(assetPath),
 	}, nil
+}
+
+func getCheckerMultiCPU(assetPath string) okgo.CheckerMultiCPU {
+	multiCPUCmd := exec.Command(assetPath, multiCPUCmdName)
+	outputBytes, err := runCommand(multiCPUCmd)
+	if err != nil {
+		return false
+	}
+	var checkerPriority okgo.CheckerMultiCPU
+	if err := json.Unmarshal(outputBytes, &checkerPriority); err != nil {
+		return false
+	}
+	return checkerPriority
 }
 
 // RunCommandAndStreamOutput runs the provided exec.Cmd. The output that is generated to Stdout and Stderr for the
