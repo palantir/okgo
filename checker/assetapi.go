@@ -34,6 +34,7 @@ func AssetRootCmd(creator Creator, upgradeConfigFn pluginapi.UpgradeConfigFn, sh
 	creatorFn := creator.Creator()
 	rootCmd.AddCommand(newTypeCmd(checkerType))
 	rootCmd.AddCommand(newPriorityCmd(creator.Priority()))
+	rootCmd.AddCommand(newMultiCPUCmd(creator.MultiCPU()))
 	rootCmd.AddCommand(newVerifyConfigCmd(creatorFn))
 	rootCmd.AddCommand(newCheckCmd(creatorFn))
 	rootCmd.AddCommand(newRunCheckCmdCmd(creatorFn))
@@ -67,6 +68,23 @@ func newPriorityCmd(priority okgo.CheckerPriority) *cobra.Command {
 		Short: "Print the priority of the checker",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			outputJSON, err := json.Marshal(priority)
+			if err != nil {
+				return errors.Wrapf(err, "failed to marshal output as JSON")
+			}
+			cmd.Print(string(outputJSON))
+			return nil
+		},
+	}
+}
+
+const multiCPUCmdName = "multicpu"
+
+func newMultiCPUCmd(cpu okgo.CheckerMultiCPU) *cobra.Command {
+	return &cobra.Command{
+		Use:   multiCPUCmdName,
+		Short: "Print whether the check uses multiple CPUs",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			outputJSON, err := json.Marshal(cpu)
 			if err != nil {
 				return errors.Wrapf(err, "failed to marshal output as JSON")
 			}
