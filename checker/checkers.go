@@ -61,7 +61,11 @@ func (c *creatorStruct) Creator() CreatorFunction {
 	return c.creator
 }
 
-func NewCreator(
+func NewCreator(checkerType okgo.CheckerType, priority okgo.CheckerPriority, creatorFn CreatorFunction) Creator {
+	return NewCreatorWithMultiCPU(checkerType, priority, false, creatorFn)
+}
+
+func NewCreatorWithMultiCPU(
 	checkerType okgo.CheckerType,
 	priority okgo.CheckerPriority,
 	multiCPU okgo.CheckerMultiCPU,
@@ -89,7 +93,7 @@ func AssetCheckerCreators(assetPaths ...string) ([]Creator, []okgo.ConfigUpgrade
 		checkerPriority := checkerMetadata.checkerPriority
 		checkerMultiCPU := checkerMetadata.checkerMultiCPU
 		checkerTypeToAssets[checkerType] = append(checkerTypeToAssets[checkerType], currAssetPath)
-		checkerCreators = append(checkerCreators, NewCreator(checkerType, checkerPriority, checkerMultiCPU,
+		checkerCreators = append(checkerCreators, NewCreatorWithMultiCPU(checkerType, checkerPriority, checkerMultiCPU,
 			func(cfgYML []byte) (okgo.Checker, error) {
 				newChecker := assetChecker{
 					assetPath:       currAssetPath,
