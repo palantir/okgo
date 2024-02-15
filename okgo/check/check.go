@@ -27,6 +27,69 @@ import (
 )
 
 func Run(projectParam okgo.ProjectParam, checkersToRun []okgo.CheckerType, pkgPaths []string, projectDir string, factory okgo.CheckerFactory, parallelism int, stdout io.Writer) error {
+	checkers, maxTypeLen, err := getCheckersToRun(projectParam, checkersToRun, factory)
+	if err != nil {
+		return err
+	}
+	// if there are fewer checkers than max parallelism, update parallelism to number of checkers
+	if len(checkers) < parallelism {
+		parallelism = len(checkers)
+	}
+
+	jobs := make(chan okgo.CheckerParam, len(checkers))
+	results := make(chan checkResult, len(checkers))
+
+	var checksWithFailures []string
+	pullResultsOff := func(toRun int) {
+		for i := 0; i < toRun; i++ {
+			checkResult := <-results
+			if checkResult.producedOutput {
+				checksWithFailures = append(checksWithFailures, string(checkResult.checkerType))
+			}
+		}
+	}
+
+	startASingleWorker := func() {
+		go singleCheckWorker(pkgPaths, projectDir, maxTypeLen, parallelism > 1, jobs, results, stdout)
+	}
+	// We always have 1 worker no matter what
+	startASingleWorker()
+
+	// First run all jobs that need to be ran one at a time
+	checkersWeCannotRunInParallel, checkersWeCanRunInParallel, err := partitionCheckerJobs(checkers)
+	if err != nil {
+		return err
+	}
+	// Start all the single ones
+	for _, checker := range checkersWeCannotRunInParallel {
+		jobs <- checker
+	}
+	// And then pull off those results
+	pullResultsOff(len(checkersWeCannotRunInParallel))
+
+	// Now we can queue up the rest
+	for _, checker := range checkersWeCanRunInParallel {
+		jobs <- checker
+	}
+
+	// And start more workers, minus the one that is running
+	for w := 0; w < parallelism-1; w++ {
+		startASingleWorker()
+	}
+
+	// And then we pull off the rest
+	pullResultsOff(len(checkersWeCanRunInParallel))
+
+	if len(checksWithFailures) > 0 {
+		sort.Strings(checksWithFailures)
+		_, _ = fmt.Fprintln(stdout, "Check(s) produced output:", checksWithFailures)
+		// return empty failure to indicate non-zero exit code
+		return fmt.Errorf("")
+	}
+	return nil
+}
+
+func getCheckersToRun(projectParam okgo.ProjectParam, checkersToRun []okgo.CheckerType, factory okgo.CheckerFactory) ([]okgo.CheckerParam, int, error) {
 	var checkers []okgo.CheckerParam
 	maxTypeLen := 0
 	for _, checkerType := range checkersToRun {
@@ -40,7 +103,7 @@ func Run(projectParam okgo.ProjectParam, checkersToRun []okgo.CheckerType, pkgPa
 		}
 		checker, err := factory.NewChecker(checkerType, nil)
 		if err != nil {
-			return errors.Wrapf(err, "failed to create checkerType %s", checkerType)
+			return nil, 0, errors.Wrapf(err, "failed to create checkerType %s", checkerType)
 		}
 		checkers = append(checkers, okgo.CheckerParam{
 			Checker: checker,
@@ -49,40 +112,26 @@ func Run(projectParam okgo.ProjectParam, checkersToRun []okgo.CheckerType, pkgPa
 
 	// sort the checkers
 	if err := sortCheckers(checkers); err != nil {
-		return err
+		return nil, 0, err
 	}
+	return checkers, maxTypeLen, nil
+}
 
-	jobs := make(chan okgo.CheckerParam)
-	results := make(chan checkResult, len(checkers))
-
-	// if there are fewer checkers than max parallelism, update parallelism to number of checkers
-	if len(checkers) < parallelism {
-		parallelism = len(checkers)
-	}
-
-	for w := 0; w < parallelism; w++ {
-		go singleCheckWorker(pkgPaths, projectDir, maxTypeLen, parallelism > 1, jobs, results, stdout)
-	}
-
+func partitionCheckerJobs(checkers []okgo.CheckerParam) ([]okgo.CheckerParam, []okgo.CheckerParam, error) {
+	var checkersWeCannotRunInParallel []okgo.CheckerParam
+	var checkersWeCanRunInParallel []okgo.CheckerParam
 	for _, checker := range checkers {
-		jobs <- checker
-	}
-	close(jobs)
-
-	var checksWithFailures []string
-	for range checkers {
-		checkResult := <-results
-		if checkResult.producedOutput {
-			checksWithFailures = append(checksWithFailures, string(checkResult.checkerType))
+		multiCPU, err := checker.Checker.MultiCPU()
+		if err != nil {
+			return nil, nil, err
+		}
+		if multiCPU {
+			checkersWeCannotRunInParallel = append(checkersWeCannotRunInParallel, checker)
+		} else {
+			checkersWeCanRunInParallel = append(checkersWeCanRunInParallel, checker)
 		}
 	}
-	if len(checksWithFailures) > 0 {
-		sort.Strings(checksWithFailures)
-		_, _ = fmt.Fprintln(stdout, "Check(s) produced output:", checksWithFailures)
-		// return empty failure to indicate non-zero exit code
-		return fmt.Errorf("")
-	}
-	return nil
+	return checkersWeCannotRunInParallel, checkersWeCanRunInParallel, nil
 }
 
 func sortCheckers(checkers []okgo.CheckerParam) error {
