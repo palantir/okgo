@@ -52,33 +52,33 @@ func Run(projectParam okgo.ProjectParam, checkersToRun []okgo.CheckerType, pkgPa
 	startASingleWorker := func() {
 		go singleCheckWorker(pkgPaths, projectDir, maxTypeLen, parallelism > 1, jobs, results, stdout)
 	}
-	// We always have 1 worker no matter what
+	// Always start 1 worker no matter what
 	startASingleWorker()
 
-	// First run all jobs that need to be ran one at a time
-	checkersWeCannotRunInParallel, checkersWeCanRunInParallel, err := partitionCheckerJobs(checkers)
+	// Bucket checks into serial and parallel ones and run all serial ones first
+	checkersToRunSerially, checkersToRunInParallel, err := partitionCheckerJobs(checkers)
 	if err != nil {
 		return err
 	}
-	// Start all the single ones
-	for _, checker := range checkersWeCannotRunInParallel {
+	// Start all jobs that must be run serially. This enqueues all jobs in order and
+	// because there is only one worker they will run one at a time.
+	for _, checker := range checkersToRunSerially {
 		jobs <- checker
 	}
-	// And then pull off those results
-	pullResultsOff(len(checkersWeCannotRunInParallel))
+	// Retrieve all results
+	pullResultsOff(len(checkersToRunSerially))
 
-	// Now we can queue up the rest
-	for _, checker := range checkersWeCanRunInParallel {
-		jobs <- checker
-	}
-
-	// And start more workers, minus the one that is running
+	// Finished processing serial checks: start up the rest of the workers to enable
+	// maximal supported parallelism for workers
 	for w := 0; w < parallelism-1; w++ {
 		startASingleWorker()
 	}
-
-	// And then we pull off the rest
-	pullResultsOff(len(checkersWeCanRunInParallel))
+	// Enqueue the checks that can run in parallel
+	for _, checker := range checkersToRunInParallel {
+		jobs <- checker
+	}
+	// Retrieve the rest of the results
+	pullResultsOff(len(checkersToRunInParallel))
 
 	if len(checksWithFailures) > 0 {
 		sort.Strings(checksWithFailures)
@@ -118,20 +118,22 @@ func getCheckersToRun(projectParam okgo.ProjectParam, checkersToRun []okgo.Check
 }
 
 func partitionCheckerJobs(checkers []okgo.CheckerParam) ([]okgo.CheckerParam, []okgo.CheckerParam, error) {
-	var checkersWeCannotRunInParallel []okgo.CheckerParam
-	var checkersWeCanRunInParallel []okgo.CheckerParam
+	var (
+		multiCPUCheckers  []okgo.CheckerParam
+		singleCPUCheckers []okgo.CheckerParam
+	)
 	for _, checker := range checkers {
 		multiCPU, err := checker.Checker.MultiCPU()
 		if err != nil {
 			return nil, nil, err
 		}
 		if multiCPU {
-			checkersWeCannotRunInParallel = append(checkersWeCannotRunInParallel, checker)
+			multiCPUCheckers = append(multiCPUCheckers, checker)
 		} else {
-			checkersWeCanRunInParallel = append(checkersWeCanRunInParallel, checker)
+			singleCPUCheckers = append(singleCPUCheckers, checker)
 		}
 	}
-	return checkersWeCannotRunInParallel, checkersWeCanRunInParallel, nil
+	return multiCPUCheckers, singleCPUCheckers, nil
 }
 
 func sortCheckers(checkers []okgo.CheckerParam) error {
