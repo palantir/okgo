@@ -6,14 +6,14 @@ require (
 	github.com/nmiyake/pkg/dirs v1.1.0
 	github.com/nmiyake/pkg/gofiles v1.2.0
 	github.com/palantir/amalgomate v1.38.0
-	github.com/palantir/godel/v2 v2.104.0
+	github.com/palantir/godel/v2 v2.105.0
 	github.com/palantir/pkg/cobracli v1.2.0
 	github.com/palantir/pkg/matcher v1.2.0
 	github.com/palantir/pkg/pkgpath v1.2.0
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/pflag v1.0.5
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 	golang.org/x/sync v0.6.0
 	gopkg.in/yaml.v2 v2.4.0
 )
