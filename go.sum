@@ -60,8 +60,8 @@ github.com/nwaples/rardecode v1.0.0 h1:r7vGuS5akxOnR4JQSkko62RJ1ReCMXxQRPtxsiFMB
 github.com/nwaples/rardecode v1.0.0/go.mod h1:5DzqNKiOdpKKBH87u8VlvAnPZMXcGRhxWkRpHbbfGS0=
 github.com/palantir/amalgomate v1.40.0 h1:EzJ84uvNknXLE6VtP2Un43RNcpZ+tmeY4yhcZCmJ8L4=
 github.com/palantir/amalgomate v1.40.0/go.mod h1:5LfNPqqCSzIuXZvMePIhRbCDKq4bArtYUOH72iX8VW4=
-github.com/palantir/godel/v2 v2.108.0 h1:rDSOl8Vn86rQkCmPjvudUEenT0i0J5IzS6iFZmZ7Xf8=
-github.com/palantir/godel/v2 v2.108.0/go.mod h1:amVViT/meaI1bf0jYlzTr+1+mVbSCZsv7DB4EQYNTt4=
+github.com/palantir/godel/v2 v2.109.0 h1:Po0SJeaBoXGsW4kvQ2OduWUKksrH5jTsbGS1OUcq2f4=
+github.com/palantir/godel/v2 v2.109.0/go.mod h1:amVViT/meaI1bf0jYlzTr+1+mVbSCZsv7DB4EQYNTt4=
 github.com/palantir/pkg v1.1.0 h1:0EhrSUP8oeeh3MUvk7V/UU7WmsN1UiJNTvNj0sN9Cpo=
 github.com/palantir/pkg v1.1.0/go.mod h1:KC9srP/9ssWRxBxFCIqhUGC4Jt7OJkWRz0Iqehup1/c=
 github.com/palantir/pkg/cobracli v1.2.0 h1:hANp5fUB5cX90SVri97Apz4xB3BqnZw0gP2jMQ34G8Y=
