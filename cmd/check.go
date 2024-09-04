@@ -73,7 +73,7 @@ func pkgsInProject(projectDir string, exclude matcher.Matcher) ([]string, error)
 		}
 		relPathPrefix = relPathPrefixVal
 	}
-	pkgs, err := pkgpath.PackagesInDir(projectDir, exclude)
+	pkgs, err := pkgpath.PackagesInDirMatchingRootModule(projectDir, exclude)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to list packages")
 	}
