@@ -70,8 +70,8 @@ github.com/palantir/pkg/gittest v1.2.0 h1:RPINGtLh+Mlt+o1M/nRQlTPrt4CP5tJOSMgeB5
 github.com/palantir/pkg/gittest v1.2.0/go.mod h1:z2eq/rEzUDmNR8rvJCb+/XZ7w9/nxRCAKvYjMYW/w/w=
 github.com/palantir/pkg/matcher v1.2.0 h1:h4IeYPSQGWIdi1Qh7QSzWATv0+2coTaaCiozYtPWBks=
 github.com/palantir/pkg/matcher v1.2.0/go.mod h1:JUH9L+Cmjv2U87y+1Ov5KKLmMbgHtESCTrPq5MyWeVM=
-github.com/palantir/pkg/pkgpath v1.2.0 h1:6JDFKFZZsiVBiek47OB7363oIAIjQNFkTsPoEtJpWzY=
-github.com/palantir/pkg/pkgpath v1.2.0/go.mod h1:VaK3q7OPEFs+YqIAAJBi3oE+dw622WmucIRpU4qa14g=
+github.com/palantir/pkg/pkgpath v1.3.0 h1:S2kbdqSEMSHLgaEdr8LQuCju+AfzSvwwSUM/Q4QUNUI=
+github.com/palantir/pkg/pkgpath v1.3.0/go.mod h1:22X+LjC1DKT6Zc9KYTPXOc0AP95gzPIC3me45vz78ac=
 github.com/palantir/pkg/specdir v1.2.0 h1:O8ukQIYBUrYfOB+LDj88Ih7308KW9THuNy0/LcV7IoY=
 github.com/palantir/pkg/specdir v1.2.0/go.mod h1:uXmFsbADJKbsDmaTSSODThNJxzSTEaUuBLSdZ/7fGcg=
 github.com/pierrec/lz4 v2.0.5+incompatible h1:2xWsjqPFWcplujydGg4WmhC/6fZqK42wMM8aXeqhl0I=
@@ -101,8 +101,8 @@ github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
 golang.org/x/mod v0.4.2/go.mod h1:s0Qsj1ACt9ePp/hMypM3fl4fZqREWJwdYDEqhRiZZUA=
-golang.org/x/mod v0.20.0 h1:utOm6MM3R3dnawAiJgn0y+xvuYRsm1RKM/4giyfDgV0=
-golang.org/x/mod v0.20.0/go.mod h1:hTbmBsO62+eylJbnUtE2MGJUyE7QWk4xUqPFrRgJ+7c=
+golang.org/x/mod v0.21.0 h1:vvrHzRwRfVKSiLrG+d4FMl/Qi4ukBCE6kZlTUkDYRT0=
+golang.org/x/mod v0.21.0/go.mod h1:6SkKJ3Xj0I0BrPOZoBy3bdMptDDU9oJrpohJ3eWZ1fY=
 golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3/go.mod h1:t9HGtf8HONx5eT2rtn7q6eTqICYqUVnKs3thJo3Qplg=
 golang.org/x/net v0.0.0-20190620200207-3b0461eec859/go.mod h1:z5CRVTTTmAJ677TzLLGU+0bjPO0LkuOLi4/5GtJWs/s=
 golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4/go.mod h1:p54w0d4576C0XHj96bSt6lcn1PtDYWL6XObtHCRCNQM=
