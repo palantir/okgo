@@ -1,6 +1,6 @@
 module github.com/palantir/okgo
 
-go 1.22.0
+go 1.23
 
 require (
 	github.com/nmiyake/pkg/dirs v1.1.0
