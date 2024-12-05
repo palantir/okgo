@@ -5,7 +5,7 @@ go 1.23.0
 require (
 	github.com/nmiyake/pkg/dirs v1.1.0
 	github.com/nmiyake/pkg/gofiles v1.2.0
-	github.com/palantir/amalgomate v1.47.0
+	github.com/palantir/amalgomate v1.48.0
 	github.com/palantir/godel/v2 v2.122.0
 	github.com/palantir/pkg/cobracli v1.2.0
 	github.com/palantir/pkg/matcher v1.2.0
