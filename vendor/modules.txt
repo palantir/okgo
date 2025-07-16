@@ -71,7 +71,7 @@ github.com/nwaples/rardecode
 # github.com/palantir/amalgomate v1.50.0
 ## explicit; go 1.24.0
 github.com/palantir/amalgomate/amalgomated
-# github.com/palantir/godel/v2 v2.133.0
+# github.com/palantir/godel/v2 v2.134.0
 ## explicit; go 1.24.0
 github.com/palantir/godel/v2/framework/artifactresolver
 github.com/palantir/godel/v2/framework/builtintasks
@@ -134,7 +134,7 @@ github.com/rogpeppe/go-internal/lockedfile/internal/filelock
 # github.com/spf13/cobra v1.9.1
 ## explicit; go 1.15
 github.com/spf13/cobra
-# github.com/spf13/pflag v1.0.6
+# github.com/spf13/pflag v1.0.7
 ## explicit; go 1.12
 github.com/spf13/pflag
 # github.com/stretchr/testify v1.10.0
