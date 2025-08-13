@@ -40,7 +40,7 @@ require (
 	github.com/palantir/pkg/specdir v1.2.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/rogpeppe/go-internal v1.7.0 // indirect
+	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/ulikunitz/xz v0.5.10 // indirect
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
 	golang.org/x/mod v0.27.0 // indirect

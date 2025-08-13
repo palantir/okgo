@@ -125,8 +125,8 @@ github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 ## explicit
 github.com/pmezard/go-difflib/difflib
-# github.com/rogpeppe/go-internal v1.7.0
-## explicit; go 1.11
+# github.com/rogpeppe/go-internal v1.14.1
+## explicit; go 1.23
 github.com/rogpeppe/go-internal/internal/syscall/windows
 github.com/rogpeppe/go-internal/internal/syscall/windows/sysdll
 github.com/rogpeppe/go-internal/lockedfile
