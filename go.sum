@@ -71,8 +71,8 @@ github.com/palantir/pkg/matcher v1.2.0 h1:h4IeYPSQGWIdi1Qh7QSzWATv0+2coTaaCiozYt
 github.com/palantir/pkg/matcher v1.2.0/go.mod h1:JUH9L+Cmjv2U87y+1Ov5KKLmMbgHtESCTrPq5MyWeVM=
 github.com/palantir/pkg/pkgpath v1.4.0 h1:PJdSKRiLuXfsODgR2Y8Vw/aa8tGWtCkutQ9hFRHwFZI=
 github.com/palantir/pkg/pkgpath v1.4.0/go.mod h1:m/DtJs9uWPPrsA5TM7Jtyeiab8zAcjoLFjWW9uFLK+o=
-github.com/palantir/pkg/specdir v1.2.0 h1:O8ukQIYBUrYfOB+LDj88Ih7308KW9THuNy0/LcV7IoY=
-github.com/palantir/pkg/specdir v1.2.0/go.mod h1:uXmFsbADJKbsDmaTSSODThNJxzSTEaUuBLSdZ/7fGcg=
+github.com/palantir/pkg/specdir v1.3.0 h1:Mnhts9SUGO3NvHxDUF4obssS0wN/ubUGzv8XGdM7QQc=
+github.com/palantir/pkg/specdir v1.3.0/go.mod h1:DPGNNuumVF3DsL0u5pC/p/38GbBIQejn++HUH9vE3YQ=
 github.com/pierrec/lz4/v4 v4.1.2/go.mod h1:gZWDp/Ze/IJXGXf23ltt2EXimqmTUXEy0GFuRQyBid4=
 github.com/pierrec/lz4/v4 v4.1.22 h1:cKFw6uJDK+/gfw5BcDL0JL5aBsAFdsIT18eRtLj7VIU=
 github.com/pierrec/lz4/v4 v4.1.22/go.mod h1:gZWDp/Ze/IJXGXf23ltt2EXimqmTUXEy0GFuRQyBid4=
