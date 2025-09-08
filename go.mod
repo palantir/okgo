@@ -6,7 +6,7 @@ require (
 	github.com/nmiyake/pkg/dirs v1.1.0
 	github.com/nmiyake/pkg/gofiles v1.2.0
 	github.com/palantir/amalgomate v1.52.0
-	github.com/palantir/godel/v2 v2.138.0
+	github.com/palantir/godel/v2 v2.139.0
 	github.com/palantir/pkg/cobracli v1.3.0
 	github.com/palantir/pkg/matcher v1.3.0
 	github.com/palantir/pkg/pkgpath v1.4.0
