@@ -59,8 +59,8 @@ github.com/nmiyake/pkg/gofiles v1.2.0/go.mod h1:aPXiVvXPwxNanRNuFIRVPYn6eTC4qxjD
 github.com/nwaples/rardecode v1.1.0/go.mod h1:5DzqNKiOdpKKBH87u8VlvAnPZMXcGRhxWkRpHbbfGS0=
 github.com/nwaples/rardecode v1.1.3 h1:cWCaZwfM5H7nAD6PyEdcVnczzV8i/JtotnyW/dD9lEc=
 github.com/nwaples/rardecode v1.1.3/go.mod h1:5DzqNKiOdpKKBH87u8VlvAnPZMXcGRhxWkRpHbbfGS0=
-github.com/palantir/amalgomate v1.52.0 h1:GPPRccgAUWfMP5F0AsgpR+CFs84ZR1eyTj5HLdfwQik=
-github.com/palantir/amalgomate v1.52.0/go.mod h1:KpMKmMZKjffsak/UI/Reab9lq+7lSOkuytkikqIT46E=
+github.com/palantir/amalgomate v1.53.0 h1:XJKk+YmP8aFl1QMLIS2GONG+OaLZomL1+SwJib8Tfmc=
+github.com/palantir/amalgomate v1.53.0/go.mod h1:4g+jxFyKDoMAEycFw/gPvkIBQAPwvGF/7umu9+b9nKU=
 github.com/palantir/godel/v2 v2.153.0 h1:WPVjl/c9py7wCaW0pWgSYd51rrnqHFtXarQlIL5NKL0=
 github.com/palantir/godel/v2 v2.153.0/go.mod h1:EZXc0oUVf7AxJCn+bVXtINkUOJ3NXRpBIWSlI5ge58c=
 github.com/palantir/pkg v1.1.0 h1:0EhrSUP8oeeh3MUvk7V/UU7WmsN1UiJNTvNj0sN9Cpo=
