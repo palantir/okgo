@@ -60,6 +60,7 @@ var (
 	)
 )
 
+//go:fix inline
 func intPtr(val int) *int {
-	return &val
+	return new(val)
 }
