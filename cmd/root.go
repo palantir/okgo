@@ -15,7 +15,7 @@
 package cmd
 
 import (
-	"io/ioutil"
+	"os"
 
 	godelconfig "github.com/palantir/godel/v2/framework/godel/config"
 	"github.com/palantir/godel/v2/framework/pluginapi"
@@ -111,7 +111,7 @@ func okgoProjectParamFromVals(okgoConfigFile, godelConfigFile string, factory ok
 }
 
 func loadConfigFromFile(cfgFile string) (config.ProjectConfig, error) {
-	cfgBytes, err := ioutil.ReadFile(cfgFile)
+	cfgBytes, err := os.ReadFile(cfgFile)
 	if err != nil {
 		return config.ProjectConfig{}, errors.Wrapf(err, "failed to read configuration file")
 	}
