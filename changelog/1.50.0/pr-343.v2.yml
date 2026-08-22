@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: Give plugins the ability to denote that they use multiple CPUs
-  links:
-  - https://github.com/palantir/okgo/pull/343
