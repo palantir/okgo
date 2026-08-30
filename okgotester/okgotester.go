@@ -81,7 +81,7 @@ func RunAssetCheckTest(t *testing.T,
 			require.NoError(t, err)
 		}
 
-		_, err = gofiles.Write(projectDir, tc.Specs)
+		err = writeGoFiles(projectDir, tc.Specs)
 		require.NoError(t, err)
 
 		outputBuf := &bytes.Buffer{}
@@ -111,4 +111,23 @@ func RunAssetCheckTest(t *testing.T,
 			assert.Equal(t, tc.WantOutput, outputBuf.String(), "Case %d: %s", i, tc.Name)
 		}()
 	}
+}
+
+// writeGoFiles to the provided directory as the root directory.
+func writeGoFiles(dir string, files []gofiles.GoFileSpec) error {
+	dir, err := filepath.Abs(dir)
+	if err != nil {
+		return err
+	}
+
+	for _, currFile := range files {
+		filePath := filepath.Join(dir, currFile.RelPath)
+		if err := os.MkdirAll(filepath.Dir(filePath), 0755); err != nil {
+			return err
+		}
+		if err := os.WriteFile(filePath, []byte(currFile.Src), 0644); err != nil {
+			return err
+		}
+	}
+	return nil
 }
