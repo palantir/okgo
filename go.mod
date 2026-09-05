@@ -9,7 +9,7 @@ require (
 	github.com/nmiyake/pkg/gofiles v1.2.0
 	github.com/palantir/amalgomate v1.59.0
 	github.com/palantir/godel/v2 v2.175.0
-	github.com/palantir/pkg/cobracli v1.3.0
+	github.com/palantir/pkg/cobracli v1.4.0
 	github.com/palantir/pkg/matcher v1.3.0
 	github.com/palantir/pkg/pkgpath v1.4.0
 	github.com/pkg/errors v0.9.1
@@ -40,6 +40,8 @@ require (
 	github.com/nwaples/rardecode v1.1.3 // indirect
 	github.com/palantir/pkg v1.1.0 // indirect
 	github.com/palantir/pkg/specdir v1.3.0 // indirect
+	github.com/palantir/witchcraft-go-error v1.42.0 // indirect
+	github.com/palantir/witchcraft-go-params v1.38.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.29 // indirect
 	github.com/rogpeppe/go-internal v1.16.0 // indirect
 	github.com/ulikunitz/xz v0.5.16 // indirect
