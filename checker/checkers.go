@@ -87,7 +87,6 @@ func AssetCheckerCreators(assetPaths ...string) ([]Creator, []okgo.ConfigUpgrade
 		return nil, nil, err
 	}
 	for _, currAssetPath := range assetPaths {
-		currAssetPath := currAssetPath
 		checkerMetadata := checkerMetadatas[currAssetPath]
 		checkerType := checkerMetadata.checkerType
 		checkerPriority := checkerMetadata.checkerPriority
