@@ -61,7 +61,6 @@ func New(providedCheckerCreators []checker.Creator, providedConfigUpgraders []ok
 	sort.Sort(okgo.ByCheckerType(checkers))
 	configUpgraders := make(map[okgo.CheckerType]okgo.ConfigUpgrader)
 	for _, currUpgrader := range providedConfigUpgraders {
-		currUpgrader := currUpgrader
 		configUpgraders[currUpgrader.TypeName()] = currUpgrader
 	}
 	return &checkerFactoryImpl{
