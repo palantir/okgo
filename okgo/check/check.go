@@ -41,7 +41,7 @@ func Run(projectParam okgo.ProjectParam, checkersToRun []okgo.CheckerType, pkgPa
 
 	var checksWithFailures []string
 	pullResultsOff := func(toRun int) {
-		for i := 0; i < toRun; i++ {
+		for range toRun {
 			checkResult := <-results
 			if checkResult.producedOutput {
 				checksWithFailures = append(checksWithFailures, string(checkResult.checkerType))
