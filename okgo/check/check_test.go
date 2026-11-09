@@ -152,25 +152,25 @@ func TestRun_NoErrorsWithWaits(t *testing.T) {
 			"test1": {
 				Checker: &inMemoryChecker{
 					checkerType: "test1",
-					timeToWait:  toDuration(timeToWait),
+					timeToWait:  new(timeToWait),
 				},
 			},
 			"test2": {
 				Checker: &inMemoryChecker{
 					checkerType: "test2",
-					timeToWait:  toDuration(timeToWait),
+					timeToWait:  new(timeToWait),
 				},
 			},
 			"test3": {
 				Checker: &inMemoryChecker{
 					checkerType: "test3",
-					timeToWait:  toDuration(timeToWait),
+					timeToWait:  new(timeToWait),
 				},
 			},
 			"test4": {
 				Checker: &inMemoryChecker{
 					checkerType: "test4",
-					timeToWait:  toDuration(timeToWait),
+					timeToWait:  new(timeToWait),
 				},
 			},
 		},
@@ -203,27 +203,27 @@ func TestRun_NoErrorsWithWaitsAndSplit(t *testing.T) {
 			"test1": {
 				Checker: &inMemoryChecker{
 					checkerType: "test1",
-					timeToWait:  toDuration(timeToWait),
+					timeToWait:  new(timeToWait),
 					multiCPU:    true,
 				},
 			},
 			"test2": {
 				Checker: &inMemoryChecker{
 					checkerType: "test2",
-					timeToWait:  toDuration(timeToWait),
+					timeToWait:  new(timeToWait),
 				},
 			},
 			"test3": {
 				Checker: &inMemoryChecker{
 					checkerType: "test3",
-					timeToWait:  toDuration(timeToWait),
+					timeToWait:  new(timeToWait),
 					multiCPU:    true,
 				},
 			},
 			"test4": {
 				Checker: &inMemoryChecker{
 					checkerType: "test4",
-					timeToWait:  toDuration(timeToWait),
+					timeToWait:  new(timeToWait),
 				},
 			},
 		},
@@ -241,6 +241,7 @@ func TestRun_NoErrorsWithWaitsAndSplit(t *testing.T) {
 	assert.Less(t, time.Now().Sub(start), timeToWait*4)
 }
 
+//go:fix inline
 func toDuration(timeToWait time.Duration) *time.Duration {
-	return &timeToWait
+	return new(timeToWait)
 }

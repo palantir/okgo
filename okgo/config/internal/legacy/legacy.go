@@ -97,10 +97,8 @@ func upgradeLegacyConfig(legacyCfg ProjectConfig, factory okgo.CheckerFactory) (
 		}
 
 		assetCfgBytes, err := yaml.Marshal(AssetConfig{
-			ConfigWithLegacy: versionedconfig.ConfigWithLegacy{
-				Legacy: true,
-			},
-			Args: legacyCfg.Checks[k].Args,
+			Legacy: true,
+			Args:   legacyCfg.Checks[k].Args,
 		})
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to marshal check %q legacy configuration", k)
