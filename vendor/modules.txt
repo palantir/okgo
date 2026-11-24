@@ -29,7 +29,7 @@ github.com/golang/snappy
 # github.com/inconshreveable/mousetrap v1.1.0
 ## explicit; go 1.18
 github.com/inconshreveable/mousetrap
-# github.com/klauspost/compress v1.20.4
+# github.com/klauspost/compress v1.20.5
 ## explicit; go 1.25
 github.com/klauspost/compress
 github.com/klauspost/compress/flate
@@ -76,7 +76,7 @@ github.com/nwaples/rardecode
 # github.com/palantir/amalgomate v1.63.0
 ## explicit; go 1.27.0
 github.com/palantir/amalgomate/amalgomated
-# github.com/palantir/godel/v2 v2.206.0
+# github.com/palantir/godel/v2 v2.208.0
 ## explicit; go 1.27.0
 github.com/palantir/godel/v2/framework/artifactresolver
 github.com/palantir/godel/v2/framework/builtintasks
